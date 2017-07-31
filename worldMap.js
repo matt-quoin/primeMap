@@ -17,7 +17,10 @@ var prevCountry;
 var mainScale = d3.scaleLog();
     mainScale.base(30);
     mainScale.domain([1, 400000]);
-    mainScale.range([0, 20]);
+    mainScale.range([3, 30]);
+var colorScale = d3.scaleLinear();
+    colorScale.domain([3, 30]);
+    colorScale.range([180, 300]);
 
 
 function clear(){
@@ -249,9 +252,10 @@ function updateMap(countryData, year){ //called whenever a country or button is 
       .selectAll("rect")
       .on("click", function(d){
         
-        
         var countKey = getKey(0, false);
         var country = d;
+        
+        alert("trans");
            
         countCode = countKey[country].code;
         
@@ -268,6 +272,7 @@ function updateMap(countryData, year){ //called whenever a country or button is 
                 selectedCountryObject = d;
                 prevCountry = d;
                 drawLines(d.id);
+                trans();
                 
                 if (primeCountriesLower.indexOf(getKey(d.id,0, true)) > -1 ){
             
@@ -563,13 +568,13 @@ function drawLines(countryID){
                 .style("stroke-width", 1)
                 .style("opacity", 0.30);
 
-            
+            console.log(colorScale(size));      
             movingCircles.append("circle")
                 .datum(center)
                 .attr("cx", selectedCenter[0])
                 .attr("cy", selectedCenter[1])
                 .attr("r",1)
-                .style("fill", d3.rgb(40, 180, 255));
+                .style("fill", d3.hsl(colorScale(size), 0.8, 0.5));
             
 
               });
