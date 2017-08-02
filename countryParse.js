@@ -1,3 +1,4 @@
+
 function getKey (countryId, direction, key){ // direciton of 1 means country:id, direction of 0 means id:country
 var keys = ["Afghanistan:004",
 "Åland Islands:248",
@@ -248,25 +249,19 @@ var keys = ["Afghanistan:004",
 "Zambia:894",
 "Zimbabwe:716"]
 
-
+//makes each string into object with attribute name and code
 function makeObjects(){
     var bigObject = new Object();
     for(var i = 0; i<keys.length; i++){
         
         var parsedCount = keys[i].split(":");
-        
-        /*var ob = {
-        [parsedCount[0]]: parsedCount[1],
-            }
-        
-        oArray.push(ob);*/
+
         bigObject[parsedCount[0]] = {name : parsedCount[0], code: parsedCount[1]}
     }
-
     return bigObject;
-    
 }
-    
+
+//makes a single object to serve as a key between codes and country names
 function makeKey(){
     var countryObjects = new Object();
         for(var i = 0; i<keys.length; i++){
@@ -277,12 +272,9 @@ function makeKey(){
             }else{
                 countryObjects[parsedCount[1]] = parsedCount[0];
             } 
-    
         }
     
-    if (typeof countryId != "undefined"){
-    return (countryObjects[countryId]);
-    }
+    if (typeof countryId != "undefined") return (countryObjects[countryId]);
     
     return countryObjects;
 }
@@ -291,6 +283,7 @@ function makeKey(){
 if(key == true){
    return  makeKey();
 }
+    
 return makeObjects();
 
 
