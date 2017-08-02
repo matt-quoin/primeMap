@@ -37,10 +37,6 @@ Mousing over a circle displays the exact number of UN sanctioned refugees. If a 
 * [TopoJSON](https://github.com/topojson/topojson) 
 
 ## Contributing
-Data used in this program was sourced from the United Nations High Commissioner for Refugees and the The Humanitarian Data Exchange.
+Data used in this program was sourced from the [United Nations High Commissioner for Refugees](http://www.unhcr.org/) and the [The Humanitarian Data Exchange](https://data.humdata.org/).
 
 * **Isaac Robinson** - *Quoin Inc Intern* 
-
-
-## License
-This project is licensed under the MIT License - see the LICENSE.md file for details
