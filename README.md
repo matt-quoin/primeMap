@@ -39,4 +39,4 @@ Mousing over a circle displays the exact number of UN sanctioned refugees. If a 
 ## Contributing
 Data used in this program was sourced from the [United Nations High Commissioner for Refugees](http://www.unhcr.org/) and the [The Humanitarian Data Exchange](https://data.humdata.org/).
 
-* **Isaac Robinson** - *Quoin Inc Intern* 
+* **Isaac Robinson** - Creator and Developer - *Quoin Inc Intern* 
