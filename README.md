@@ -1,4 +1,3 @@
-# primeMap
 # RefuD3 - A Refugee Migration Map in D3
 This map is meant to visualize refugee data from the UN Refugee Agency between the years of 1975 and 2013 in a fun a visually pleasing manner. The application was built using Mike Bostock’s d3.js library, served as an html webpage and styled exclusively with CSS .
 
