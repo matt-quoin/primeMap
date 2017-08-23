@@ -1,4 +1,7 @@
-function getKey (countryId, direction, key) { // direciton of 1 means country:id, direction of 0 means id:country
+"use strict";
+
+function getKey(countryId, direction, key) {
+  // direciton of 1 means country:id, direction of 0 means id:country
   var keys = [
     "Afghanistan:004",
     "Åland Islands:248",
@@ -248,14 +251,14 @@ function getKey (countryId, direction, key) { // direciton of 1 means country:id
     "Yemen:887",
     "Zambia:894",
     "Zimbabwe:716"
-  ]
+  ];
 
   //makes each string into object with attribute name and code
   function makeObjects() {
     var bigObject = new Object();
-    for(var i = 0; i<keys.length; i++) {
+    for (var i = 0; i < keys.length; i++) {
       var parsedCount = keys[i].split(":");
-      bigObject[parsedCount[0]] = {name : parsedCount[0], code: parsedCount[1]}
+      bigObject[parsedCount[0]] = { name: parsedCount[0], code: parsedCount[1] };
     }
 
     return bigObject;
@@ -264,24 +267,25 @@ function getKey (countryId, direction, key) { // direciton of 1 means country:id
   //makes a single object to serve as a key between codes and country names
   function makeKey() {
     var countryObjects = new Object();
-    for(var i = 0; i<keys.length; i++) {
+    for (var i = 0; i < keys.length; i++) {
       var parsedCount = keys[i].split(":");
-      if (direction == 1) { //direction of 1 meaning country:key
+      if (direction == 1) {
+        //direction of 1 meaning country:key
         countryObjects[parsedCount[0]] = parsedCount[1];
-      }else{
+      } else {
         countryObjects[parsedCount[1]] = parsedCount[0];
       }
     }
 
     if (typeof countryId != "undefined") {
-      return (countryObjects[countryId]);
+      return countryObjects[countryId];
     }
 
     return countryObjects;
   }
 
   if (key == true) {
-    return  makeKey();
+    return makeKey();
   }
 
   return makeObjects();
