@@ -4,7 +4,7 @@
 </div>
 <script>
   var initialize = true;
-  var dataServerPath = "{{MEDIA_URL}}media_files/{{media.slug}}/";
+  var dataServerPath = "{{media.get_static_path}}";
   buildMap(dataServerPath);
 
   if(initialize){
