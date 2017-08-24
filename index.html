@@ -1,194 +1,28 @@
-<html>
-  <head>
-    <script src="libraries/d3.v4.min.js"></script>
-    <script src="libraries/d3-geo-projection.v1.min.js"></script>
-    <script src="libraries/topojson.v2.min.js"></script>
-    <script src="countryParse.js"></script>
-    <script src="csvParse2.js"></script>
-    <script src="csvParse1.js"></script>
-    <script src="/worldMap.js"></script>
 
-    <style>
-      /* Slider styling*/
-      #sliderdiv {
-        width: 80%;
-      }
-      input[type=range] {
-        -webkit-appearance: none;
-        width: 100%;
-        margin: 7.3px 0;
-      }
-      input[type=range]:focus {
-        outline: none;
-      }
-      input[type=range]::-webkit-slider-runnable-track {
-        width: 100%;
-        height: 8.4px;
-        cursor: pointer;
-        background: #704798;
-        border-radius: 5px;
-        border: 0px solid #010101;
-        margin-top: -8px;
-        margin-bottom: 10px;
-      }
-      input[type=range]::-moz-range-track {
-        width: 100%;
-        height: 8.4px;
-        cursor: pointer;
-        background: #704798;
-        border-radius: 5px;
-        border: 0px solid #010101;
-        margin-bottom: 10px;
-      }
-      input[type=range]::-webkit-slider-thumb {
-        border: 0.8px solid rgba(118, 123, 194, 0.92);
-        height: 20px;
-        width: 25px;
-        border-radius: 8px;
-        background: #ffffff;
-        cursor: pointer;
-        -webkit-appearance: none;
-        margin-top: -7px;
-      }
-      input[type=range]::-moz-range-thumb {
-        border: 0.8px solid rgba(118, 123, 194, 0.92);
-        height: 23px;
-        width: 25px;
-        border-radius: 8px;
-        background: #ffffff;
-        cursor: pointer;
-      }
-      input[type=range]::-ms-track {
-        width: 100%;
-        height: 8.4px;
-        cursor: pointer;
-        background: transparent;
-        border-color: transparent;
-        color: transparent;
-      }
-      input[type=range]::-ms-fill-lower {
-        background: #2d488c;
-        border: 0px solid #010101;
-        border-radius: 0px;
-        box-shadow: 0px 0px 1px #191b1f, 0px 0px 0px #24272d;
-      }
-      input[type=range]::-ms-fill-upper {
-        background: #2e4a90;
-        border: 0px solid #010101;
-        border-radius: 0px;
-        box-shadow: 0px 0px 1px #191b1f, 0px 0px 0px #24272d;
-      }
-      input[type=range]::-ms-thumb {
-        box-shadow: 2.4px 2.4px 1.8px #302340, 0px 0px 2.4px #3c2c50;
-        border: 0.8px solid rgba(118, 123, 194, 0.92);
-        height: 23px;
-        width: 25px;
-        border-radius: 8px;
-        background: #ffffff;
-        cursor: pointer;
-        height: 8.4px;
-      }
-      input[type=range]:focus::-ms-fill-lower {
-        background: #2e4a90;
-      }
-      input[type=range]:focus::-ms-fill-upper {
-        background: #2f4c94;
-      }
+<div id="sliderdiv">
+  <input id="date_slider" type="range" min="1975" max="2013" step="0.01" value="1975"/>
+</div>
+<script>
+  var initialize = true;
+  var dataServerPath = "{{MEDIA_URL}}media_files/{{media.slug}}/";
+  buildMap(dataServerPath);
 
-      /*main graph style*/
-      .area {
-        fill: #4783A3;
-        clip-path: url(#clip);
-      }
+  if(initialize){
+    csvParse(dataServerPath, updateMap, 1975, 0);
+    updateYear(1975);
+    initialize = false; //makes countries clickable from the start
+  }
 
-      .axis text {
-        stroke: black;
-        font-weight: 5;
-      }
+  d3.select("#date_slider").on("input", function(){ //updates year in right corner
+    var value = Math.round(this.value);
+    updateYear(value);
+  });
 
-      /* mini graph style */
-      .areContext {
-        fill: black;
-      }
-
-      /* brush events */
-      .zoom {
-        cursor: move;
-        fill: none;
-        pointer-events: all;
-      }
-
-      /* Upper right-hand corner year style */
-      .yearText {
-        text-align: right;
-        font-family: geomanist-regular-webfont, "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
-        font-size: 3vw;
-      }
-
-      /* graph type select style */
-      .attributeButtonLabels {
-        color: white;
-      }
-
-      body{
-        background-color: #fff;
-      }
-
-      /*right hand county select buttons */
-      .countrySelect {
-        fill: #EFE6F7;
-        transition-duration: 0.3s;
-        position: absolute;
-        margin: auto;
-      }
-
-      .countrySelect:hover {
-        fill: #9b71c6;
-      }
-
-      .countryLabels{
-        color:black;
-        font-family: geomanist-regular-webfont, "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
-        font-size: 1.5vw;
-        padding: 10px;
-      }
-
-      /* lines between country */
-      .states{
-        stroke-width: 1px;
-      }
-
-      .attributeButtonLabels{
-        font-family: geomanist-regular-webfont, "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
-        margin-top: 0.4vw;
-        font-size: 1.2vw;
-        color: azure;
-      }
-    </style>
-  <head>
-  <body onresize=window.location.reload()>
-    <div id="sliderdiv">
-      <input id="slider" type="range" min="1975" max="2013" step="0.01" value="1975"/>
-    </div>
-    <script>
-      var initialize = true;
-      buildMap();
-
-      if(initialize){
-        csvParse(updateMap, 1975, 0);
-        updateYear(1975);
-        initialize = false; //makes countries clickable from the start
-      }
-
-      d3.select("#slider").on("input", function(){ //updates year in right corner
-        var value = Math.round(this.value);
-        updateYear(value);
-      });
-
-      d3.select("#slider").on("mouseup", function(){ //updates actual map
-        var value = Math.round(this.value);
-        csvParse(updateMap, value, 0);
-      });
-    </script>
-  </body>
-</html>
+  d3.select("#date_slider").on("mouseup", function(){ //updates actual map
+    var value = Math.round(this.value);
+    csvParse(dataServerPath, updateMap, value, 0);
+  });
+  $( window ).resize(function() {
+    window.location.reload();
+  });
+</script>

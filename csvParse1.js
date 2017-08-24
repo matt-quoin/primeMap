@@ -7,22 +7,6 @@ function setCountries(countryList) {
   primeroCountries = countryList;
 }
 
-/*function test(files) {
-  d3.csv("/dataFiles/perCapitaFoodSupply.csv", function(data){
-    d3.csv("/dataFiles/undernourishment.csv", function(data2) {
-      var foodData = d3.nest()
-        .key(d => d['Country name'])
-        .entries(data);
-
-      var undernourishmentData = d3.nest()
-        .key(d => d['Country name'])
-        .entries(data2);
-
-      var result = merge(foodData, undernourishmentData);
-    });
-  });
-}*/
-
 //sorts data by country, then adds the data source to the end
 function sort(data, fileName) {
   var countries = primeroCountries;
@@ -38,8 +22,8 @@ function sort(data, fileName) {
 }
 
 //loads all data file, sorts
-function coagData(files, dataArray, startAt, callback) {
-  d3.csv("/dataFiles/" + files[startAt], function (data5) {
+function coagData(dataServerPath, files, dataArray, startAt, callback) {
+  d3.csv(dataServerPath + files[startAt], function (data5) {
     dataArray.push(sort(data5, files[startAt]));
 
     if (startAt == files.length - 1) {
@@ -47,7 +31,7 @@ function coagData(files, dataArray, startAt, callback) {
       callback(join(dataArray)); //goes back up through recursion and joins each data array to main array
     } else {
       startAt++;
-      coagData(files, dataArray, startAt, callback); //recurses until last file is loaded
+      coagData(dataServerPath, files, dataArray, startAt, callback); //recurses until last file is loaded
     }
   });
 }
