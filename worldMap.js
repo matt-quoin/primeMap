@@ -297,10 +297,10 @@ function updateMap(countryData, year) {
             dataStoreFinal.push([keys[t], numbersOnly[t]]);
           }
 
-          var svg = d3.select(".panelSVG"),
-              width = graphWidth;
-          height = 7 * graphHeight / 12;
-          height2 = graphHeight / 8;
+          var svg = d3.select(".panelSVG");
+          var width = graphWidth;
+          var height = 7 * graphHeight / 12;
+          var height2 = graphHeight / 8;
 
           var parseDate = d3.timeParse("%Y");
 
