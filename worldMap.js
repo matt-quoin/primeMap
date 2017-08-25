@@ -29,7 +29,7 @@ function clear() {
 }
 
 function reDraw() {
-  var topPanel = d3.select(".divElement").append('svg').attr("width", '100%').attr("height", '40%').attr("class", "panelSVG");
+  var topPanel = d3.select("#graph-container").append('svg').attr("width", '100%').attr("height", '100%').attr("class", "panelSVG");
 
   topPanel.append("g").attr("class", "xaxis");
   topPanel.append("g").attr("class", "yaxis");
@@ -55,11 +55,12 @@ function buildMap(dataServerPath) {
   var data = [];
   var countCode;
 
-  var divElement = d3.select("body").append("div").attr("class", "divElement");
+  var divElement = d3.select("#map-container");
+  var sidebarElement = d3.select("#side-bar-container");
 
-  var svg = divElement.append('svg').attr("x", 0).attr("y", 0).attr("width", '80%').attr("height", '73%').attr("class", "mapSVG");
+  var svg = divElement.append('svg').attr("x", 0).attr("y", 0).attr("width", '100%').attr("height", '100%').attr("class", "mapSVG");
 
-  var sidePanel = divElement.append("svg").attr("width", "20%").attr("height", "70%").attr("class", "sidePanel");
+  var sidePanel = sidebarElement.append("svg").attr("width", "100%").attr("height", "100%").attr("class", "sidePanel");
 
   var topPanel = reDraw();
 
@@ -127,7 +128,7 @@ function buildMap(dataServerPath) {
 function fillPC() {
   //highlights primero countries in red after map updates
   primeCountriesLower = ["Angola", "Indonesia", "Kenya", "Nigeria", "Nepal", "Jordan", "South Sudan", "Sudan", "Sierra Leone"];
-  d3.select(".divElement").select(".mapSVG").select(".states").selectAll("path").each(function (d) {
+  d3.select("#map-container").select(".mapSVG").select(".states").selectAll("path").each(function (d) {
     if (primeCountriesLower.indexOf(getKey(d.id, 0, true)) > -1) {
       d3.select(this).style("fill", "red");
     }

@@ -1,6 +1,3 @@
-#sliderdiv {
-  width: 80%;
-}
 input[type=range] {
   -webkit-appearance: none;
   width: 100%;
@@ -16,7 +13,7 @@ input[type=range]::-webkit-slider-runnable-track {
   background: #704798;
   border-radius: 5px;
   border: 0px solid #010101;
-  margin-top: -8px;
+  margin-top: 10px;
   margin-bottom: 10px;
 }
 input[type=range]::-moz-range-track {
@@ -151,4 +148,49 @@ body{
   margin-top: 0.4vw;
   font-size: 1.2vw;
   color: azure;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100vh;
+  min-height: 100vh;
+  width: 100vw;
+  max-width: 100vw;
+  margin: 0px;
+}
+
+.divElement {
+  height: 95vh;
+  overflow: hidden;
+}
+
+#map-container {
+  width: 80vw;
+  height: 65vh;
+  position: relative;
+  float: left;
+}
+
+#side-bar-container {
+  width: 20vw;
+  height: 65vh;
+  position: relative;
+  float: left;
+}
+
+#sliderdiv {
+  height: 5vh;
+  width: 80vw;
+  position: relative;
+  float: left;
+}
+
+#graph-container {
+  width: 100vw;
+  height: 30vh;
+  position: relative;
+  float: left;
 }

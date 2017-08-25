@@ -1,0 +1,32 @@
+
+<div id="map-container"></div>
+<div id="side-bar-container"></div>
+<div id="sliderdiv">
+  <input id="slider" type="range" min="1975" max="2013" step="0.01" value="1975"/>
+</div>
+<div id="graph-container"></div>
+<script>
+  var initialize = true;
+  var dataServerPath = "{{media.get_static_path}}";
+  buildMap(dataServerPath);
+
+  if(initialize){
+    csvParse(dataServerPath, updateMap, 1975, 0);
+    updateYear(1975);
+    initialize = false; //makes countries clickable from the start
+  }
+
+  d3.select("#slider").on("input", function(){ //updates year in right corner
+    var value = Math.round(this.value);
+    updateYear(value);
+  });
+
+  d3.select("#slider").on("mouseup", function(){ //updates actual map
+    var value = Math.round(this.value);
+    csvParse(dataServerPath, updateMap, value, 0);
+  });
+
+  $(window).resize(function() {
+    window.location.reload();
+  });
+</script>
