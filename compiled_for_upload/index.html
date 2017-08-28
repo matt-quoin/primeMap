@@ -2,7 +2,7 @@
 <div id="map-container"></div>
 <div id="side-bar-container"></div>
 <div id="sliderdiv">
-  <input id="slider" type="range" min="1975" max="2013" step="0.01" value="1975"/>
+  <input id="year-slider" type="range" min="1975" max="2013" step="0.01" value="1975"/>
 </div>
 <div id="graph-container"></div>
 <script>
@@ -16,12 +16,12 @@
     initialize = false; //makes countries clickable from the start
   }
 
-  d3.select("#slider").on("input", function(){ //updates year in right corner
+  d3.select("#year-slider").on("input", function(){ //updates year in right corner
     var value = Math.round(this.value);
     updateYear(value);
   });
 
-  d3.select("#slider").on("mouseup", function(){ //updates actual map
+  d3.select("#year-slider").on("mouseup", function(){ //updates actual map
     var value = Math.round(this.value);
     csvParse(dataServerPath, updateMap, value, 0);
   });

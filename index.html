@@ -44,8 +44,8 @@
       input[type=range]::-webkit-slider-thumb {
         border: 0.8px solid rgba(118, 123, 194, 0.92);
         height: 20px;
-        width: 25px;
-        border-radius: 8px;
+        width: 20px;
+        border-radius: 12px;
         background: #ffffff;
         cursor: pointer;
         -webkit-appearance: none;
@@ -54,8 +54,8 @@
       input[type=range]::-moz-range-thumb {
         border: 0.8px solid rgba(118, 123, 194, 0.92);
         height: 23px;
-        width: 25px;
-        border-radius: 8px;
+        width: 23px;
+        border-radius: 12px;
         background: #ffffff;
         cursor: pointer;
       }
@@ -83,8 +83,8 @@
         box-shadow: 2.4px 2.4px 1.8px #302340, 0px 0px 2.4px #3c2c50;
         border: 0.8px solid rgba(118, 123, 194, 0.92);
         height: 23px;
-        width: 25px;
-        border-radius: 8px;
+        width: 23px;
+        border-radius: 12px;
         background: #ffffff;
         cursor: pointer;
         height: 8.4px;
@@ -103,7 +103,6 @@
       }
 
       .axis text {
-        stroke: black;
         font-weight: 5;
       }
 
@@ -183,13 +182,13 @@
       }
       #map-container {
         width: 80vw;
-        height: 65vh;
+        height: 64vh;
         position: relative;
         float: left;
       }
       #side-bar-container {
         width: 20vw;
-        height: 65vh;
+        height: 64vh;
         position: relative;
         float: left;
       }
@@ -212,7 +211,7 @@
     <div id="map-container"></div>
     <div id="side-bar-container"></div>
     <div id="sliderdiv">
-      <input id="slider" type="range" min="1975" max="2013" step="0.01" value="1975"/>
+      <input id="year-slider" type="range" min="1975" max="2013" step="0.01" value="1975"/>
     </div>
     <div id="graph-container"></div>
     <script>
@@ -226,12 +225,12 @@
         initialize = false; //makes countries clickable from the start
       }
 
-      d3.select("#slider").on("input", function(){ //updates year in right corner
+      d3.select("#year-slider").on("input", function(){ //updates year in right corner
         var value = Math.round(this.value);
         updateYear(value);
       });
 
-      d3.select("#slider").on("mouseup", function(){ //updates actual map
+      d3.select("#year-slider").on("mouseup", function(){ //updates actual map
         var value = Math.round(this.value);
         csvParse(dataServerPath, updateMap, value, 0);
       });
