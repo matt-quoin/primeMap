@@ -21,15 +21,13 @@
       (function() {
         var initialize = true;
         var dataServerPath = "test/";
-        buildMap(dataServerPath);
-
-        if(initialize){
-          initialize = false; //makes countries clickable from the start
-          updateYear(1975);
-          setTimeout(function(){
+        buildMap(dataServerPath, function() {
+          if(initialize){
+            initialize = false; //makes countries clickable from the start
+            updateYear(1975);
             csvParse(dataServerPath, updateMap, 1975, 0);
-          }, 1);
-        }
+          }
+        });
 
         d3.select("#year-slider").on("input", function(){ //updates year in right corner
           var value = Math.round(this.value);

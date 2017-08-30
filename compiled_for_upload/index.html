@@ -7,13 +7,13 @@
 <script>
   var initialize = true;
   var dataServerPath = "{{media.get_static_path}}";
-  buildMap(dataServerPath);
-
-  if(initialize){
-    csvParse(dataServerPath, updateMap, 1975, 0);
-    updateYear(1975);
-    initialize = false; //makes countries clickable from the start
-  }
+  buildMap(dataServerPath, function() {
+    if(initialize){
+      initialize = false; //makes countries clickable from the start
+      updateYear(1975);
+      csvParse(dataServerPath, updateMap, 1975, 0);
+    }
+  });
 
   d3.select("#year-slider").on("input", function(){ //updates year in right corner
     var value = Math.round(this.value);
