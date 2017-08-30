@@ -11,18 +11,22 @@ var margin = { top: 20, right: 5, bottom: 20, left: 15 };
 var margin2 = { top: 20, right: 5, bottom: 20, left: 15 };
 var dataSelect = "perCapitaFoodSupply.csv";
 var selectButtonHeight = 20;
+var primeCountries = ["AFGHANISTAN", "ALBANIA", "ALGERIA", "AMERICAN SAMOA", "ANDORRA", "ANGOLA", "ANGUILLA", "ANTIGUA AND BARBUDA", "ARGENTINA", "ARMENIA", "ARUBA", "IA", "AUSTRIA", "AZERBAIJAN", "BAHAMAS", "BAHRAIN", "BANGLADESH", "BARBADOS", "BELARUS", "BELGIUM", "BELIZE", "BENIN", "BERMUDA", "BHUTAN", "BOLIVIA", "BONAIRE", "BOSNIA-HERZEGOVINA", "BOTSWANA", "BOUVET ISLAND", "BRAZIL", "BRUNEI", "BULGARIA", "BURKINA FASO", "BURUNDI", "CAMBODIA", "CAMEROON", "CANADA", "CAPE VERDE", "CAYMAN ISLANDS", "CENTRAL ARICAN REPUBLIC", "CHAD", "CHILE", "CHINA", "CHRISTMAS ISLAND", "COCOS (KEELING) ISLANDS", "COLOMBIA", "COMOROS", "CONGO", "COOK ISLANDS", "COSTA RICA", "CROATIA", "CUBA", "CYPRUS", "CZECH REP.", "DENMARK", "DJIBOUTI", "DOMINICA", "DOMINICAN REPUBLIC", "ECUADOR", "EGYPT", "EL SALVADOR", "EQUATORIAL GUINEA", "ERITREA", "ESTONIA", "ETHIOPIA", "FALKLAND ISLANDS", "FAROE ISLANDS", "FIJI", "FINLAND", "FRANCE", "FRENCH GUIANA", "GABON", "GAMBIA", "GEORGIA", "GERMANY", "GHANA", "GIBRALTAR", "GREECE", "GREENLAND", "GRENADA", "GUATEMALA", "GUINEA", "GUINEA BISSAU", "GUYANA", "HAITI", "HOLY SEE", "HONDURAS", "HONG KONG", "HUNGARY", "ICELAND", "INDIA", "INDONESIA", "IRAN", "IRAQ", "IRELAND", "ISRAEL", "ITALY", "IVORY COAST", "JAMAICA", "JAPAN", "JORDAN", "KAZAKHSTAN", "KENYA", "KIRIBATI", "KOSOVO", "KUWAIT", "KYRGYZSTAN", "LAOS", "LATVIA", "LEBANON", "LESOTHO", "LIBERIA", "LIBYA", "LIECHTENSTEIN", "LITHUANIA", "LUXEMBOURG", "MACAU", "MACEDONIA", "MADAGASCAR", "MALAWI", "MALAYSIA", "MALDIVES", "MALI", "MALTA", "MARSHALL ISLANDS", "MAURITANIA", "MAURITIUS", "MAYOTTE", "MEXICO", "MICRONESIA", "MOLDOVA", "MONACO", "MONGOLIA", "MONTENEGRO", "MONTSERRAT", "MOROCCO", "MOZAMBIQUE", "MYANMAR", "NAMIBIA", "NAURU", "NEPAL", "NETHERLANDS", "NETHERLANDS ANTILLES", "NEW ZEALAND", "NICARAGUA", "NIGER", "NIGERIA", "NIUE", "NORFOLK ISLAND", "NORTH KOREA", "NORTHERN MARIANA ISLANDS", "NORWAY", "OMAN", "PAKISTAN", "PALAU", "PANAMA", "PAPUA NEW GUINEA", "PARAGUAY", "PERU", "PHILIPPINES", "PITCAIRN ISLAND", "POLAND", "POLYNESIA (FRENCH)", "PORTUGAL", "PUERTO RICO", "QATAR", "RNION", "ROMANIA", "RUSSIA", "RWANDA", "SAINT HELENA", "SAINT KITTS AND NEVIS", "SAINT LUCIA", "SAINT PIERRE AND MIQUELON", "SAINT VINCENT AND GRENADINES", "SAMOA", "SAN MARINO", "SAO TOME AND PRINCIPE", "SAUDI ARABIA", "SENEGAL", "SERBIA", "SEYCHELLES", "SIERRA LEONE", "SINGAPORE", "SINT MAARTEN", "SLOVAKIA", "SLOVENIA", "SOLOMON ISLANDS", "SOMALIA", "SOUTH AFRICA", "SOUTH GEORGIA AND SOUTH SANDWICH ISLANDS", "SOUTH KOREA", "SOUTH SUDAN", "SOUTH SUDAN", "SPAIN", "SRI LANKA", "SUDAN", "SURINAME", "SVALBARD AND JAN MAYEN ISLANDS", "SWAZILAND", "SWEDEN", "SWITZERLAND", "SYRIA", "TAIWAN", "TAJIKISTAN", "TANZANIA", "THAILAND", "TIMOR-LESTE (EAST TIMOR)", "TOGO", "TOKELAU", "TONGA", "TRINIDAD AND TOBAGO", "TUNISIA", "TURKEY", "TURKMENISTAN", "TURKS AND CAICOS ISLANDS", "TUVALU", "UGANDA", "UKRAINE", "UNITED ARAB EMIRATES", "UNITED KINGDOM", "UNITED STATES", "URUGUAY", "UZBEKISTAN", "VANUATU", "VENEZUELA", "VIETNAM", "VIRGIN ISLANDS", "WALLIS AND FUTUNA ISLANDS", "YEMEN", "ZAMBIA", "ZIMBABWE"];
 var primeCountriesLower = ["Angola", "Indonesia", "Kenya", "Nigeria", "Nepal", "Jordan", "South Sudan", "Sudan", "Sierra Leone"];
-var gdpScale = d3.scaleLog();
-gdpScale.domain([288, 73000]);
-gdpScale.range([30, 255]);
+var gdpScale = d3.scaleLog()
+  .domain([288, 73000])
+  .range([30, 255]);
 var prevCountry;
-var mainScale = d3.scaleLog();
-mainScale.base(30);
-mainScale.domain([1, 400000]);
-mainScale.range([3, 30]);
-var colorScale = d3.scaleLinear();
-colorScale.domain([3, 30]);
-colorScale.range([180, 300]);
+var maxRefugees = 400000;
+var mainScale = d3.scaleLog()
+  .base(10)
+  .domain([1, maxRefugees])
+  .range([1, 10]);
+var colorScaleLength = 10;
+var colorScale = d3.scaleLinear()
+  .domain([1, maxRefugees])
+  .interpolate(d3.interpolateHcl)
+  .range([d3.rgb("#007AFF"), d3.rgb('#FFF500')]);
 
 function clear() {
   d3.select("body").select(".mapSVG").select(".countries").selectAll("path").style("fill", "black");
@@ -49,36 +53,26 @@ function updateYear(yearChanged) {
 }
 
 function buildMap(dataServerPath) {
-  var primeCountries = ["AFGHANISTAN", "ALBANIA", "ALGERIA", "AMERICAN SAMOA", "ANDORRA", "ANGOLA", "ANGUILLA", "ANTIGUA AND BARBUDA", "ARGENTINA", "ARMENIA", "ARUBA", "IA", "AUSTRIA", "AZERBAIJAN", "BAHAMAS", "BAHRAIN", "BANGLADESH", "BARBADOS", "BELARUS", "BELGIUM", "BELIZE", "BENIN", "BERMUDA", "BHUTAN", "BOLIVIA", "BONAIRE", "BOSNIA-HERZEGOVINA", "BOTSWANA", "BOUVET ISLAND", "BRAZIL", "BRUNEI", "BULGARIA", "BURKINA FASO", "BURUNDI", "CAMBODIA", "CAMEROON", "CANADA", "CAPE VERDE", "CAYMAN ISLANDS", "CENTRAL ARICAN REPUBLIC", "CHAD", "CHILE", "CHINA", "CHRISTMAS ISLAND", "COCOS (KEELING) ISLANDS", "COLOMBIA", "COMOROS", "CONGO", "COOK ISLANDS", "COSTA RICA", "CROATIA", "CUBA", "CYPRUS", "CZECH REP.", "DENMARK", "DJIBOUTI", "DOMINICA", "DOMINICAN REPUBLIC", "ECUADOR", "EGYPT", "EL SALVADOR", "EQUATORIAL GUINEA", "ERITREA", "ESTONIA", "ETHIOPIA", "FALKLAND ISLANDS", "FAROE ISLANDS", "FIJI", "FINLAND", "FRANCE", "FRENCH GUIANA", "GABON", "GAMBIA", "GEORGIA", "GERMANY", "GHANA", "GIBRALTAR", "GREECE", "GREENLAND", "GRENADA", "GUATEMALA", "GUINEA", "GUINEA BISSAU", "GUYANA", "HAITI", "HOLY SEE", "HONDURAS", "HONG KONG", "HUNGARY", "ICELAND", "INDIA", "INDONESIA", "IRAN", "IRAQ", "IRELAND", "ISRAEL", "ITALY", "IVORY COAST", "JAMAICA", "JAPAN", "JORDAN", "KAZAKHSTAN", "KENYA", "KIRIBATI", "KOSOVO", "KUWAIT", "KYRGYZSTAN", "LAOS", "LATVIA", "LEBANON", "LESOTHO", "LIBERIA", "LIBYA", "LIECHTENSTEIN", "LITHUANIA", "LUXEMBOURG", "MACAU", "MACEDONIA", "MADAGASCAR", "MALAWI", "MALAYSIA", "MALDIVES", "MALI", "MALTA", "MARSHALL ISLANDS", "MAURITANIA", "MAURITIUS", "MAYOTTE", "MEXICO", "MICRONESIA", "MOLDOVA", "MONACO", "MONGOLIA", "MONTENEGRO", "MONTSERRAT", "MOROCCO", "MOZAMBIQUE", "MYANMAR", "NAMIBIA", "NAURU", "NEPAL", "NETHERLANDS", "NETHERLANDS ANTILLES", "NEW ZEALAND", "NICARAGUA", "NIGER", "NIGERIA", "NIUE", "NORFOLK ISLAND", "NORTH KOREA", "NORTHERN MARIANA ISLANDS", "NORWAY", "OMAN", "PAKISTAN", "PALAU", "PANAMA", "PAPUA NEW GUINEA", "PARAGUAY", "PERU", "PHILIPPINES", "PITCAIRN ISLAND", "POLAND", "POLYNESIA (FRENCH)", "PORTUGAL", "PUERTO RICO", "QATAR", "RNION", "ROMANIA", "RUSSIA", "RWANDA", "SAINT HELENA", "SAINT KITTS AND NEVIS", "SAINT LUCIA", "SAINT PIERRE AND MIQUELON", "SAINT VINCENT AND GRENADINES", "SAMOA", "SAN MARINO", "SAO TOME AND PRINCIPE", "SAUDI ARABIA", "SENEGAL", "SERBIA", "SEYCHELLES", "SIERRA LEONE", "SINGAPORE", "SINT MAARTEN", "SLOVAKIA", "SLOVENIA", "SOLOMON ISLANDS", "SOMALIA", "SOUTH AFRICA", "SOUTH GEORGIA AND SOUTH SANDWICH ISLANDS", "SOUTH KOREA", "SOUTH SUDAN", "SOUTH SUDAN", "SPAIN", "SRI LANKA", "SUDAN", "SURINAME", "SVALBARD AND JAN MAYEN ISLANDS", "SWAZILAND", "SWEDEN", "SWITZERLAND", "SYRIA", "TAIWAN", "TAJIKISTAN", "TANZANIA", "THAILAND", "TIMOR-LESTE (EAST TIMOR)", "TOGO", "TOKELAU", "TONGA", "TRINIDAD AND TOBAGO", "TUNISIA", "TURKEY", "TURKMENISTAN", "TURKS AND CAICOS ISLANDS", "TUVALU", "UGANDA", "UKRAINE", "UNITED ARAB EMIRATES", "UNITED KINGDOM", "UNITED STATES", "URUGUAY", "UZBEKISTAN", "VANUATU", "VENEZUELA", "VIETNAM", "VIRGIN ISLANDS", "WALLIS AND FUTUNA ISLANDS", "YEMEN", "ZAMBIA", "ZIMBABWE"];
-
-  var primeCountries2 = ["ANGOLA", "INDONESIA", "KENYA", "NIGERIA", "NEPAL", "JORDAN", "SOUTH SUDAN", "SUDAN", "SIERRA LEONE"];
   var data = [];
   var countCode;
-
   var divElement = d3.select("#map-container");
   var sidebarElement = d3.select("#side-bar-container");
-
   var svg = divElement.append('svg').attr("x", 0).attr("y", 0).attr("width", '100%').attr("height", '100%').attr("class", "mapSVG");
-
   var sidePanel = sidebarElement.append("svg").attr("width", "100%").attr("height", "100%").attr("class", "sidePanel");
-
   var topPanel = reDraw();
-
   var countries = svg.append("g").attr("class", "countries");
-
   var movingCircles = svg.append("g").attr("class", "movingCircle");
-
   var staticCircle = svg.append("g").attr("class", "staticCircle");
 
   setCountries(primeCountries); //selects all countries for data parsing
-
-  primeCountries = ["Angola", "Indonesia", "Kenya", "Nigeria", "Nepal", "Jordan", "South Sudan", "Sudan", "Sierra Leone"];
-
-  sidePanel.append('text').attr("class", "yearText").attr("x", parseInt(sidePanel.style("width")) / 3).attr("y", parseInt(sidePanel.style("height")) / 15).style("stroke", "black").text("");
-
+  sidePanel.append('text')
+    .attr("class", "yearText")
+    .attr("x", parseInt(sidePanel.style("width")) / 3)
+    .attr("y", parseInt(sidePanel.style("height")) / 15)
+    .style("stroke", "black")
+    .text("");
   graphWidth = parseInt(topPanel.style("width")); //gets number valus for svg widths and heights
   graphHeight = parseInt(topPanel.style("height"));
-
   mapWidth = parseInt(svg.style("width"));
   mapHeight = parseInt(svg.style("height"));
 
@@ -86,24 +80,32 @@ function buildMap(dataServerPath) {
   var buttonWidth = parseInt(sidePanel.style("width")) - margin.right - margin.left;
 
   sidePanel.append('g').attr("class", "graph").selectAll('rect') //adds country select buttons
-    .data(primeCountries).enter().append('rect').attr("class", "countrySelect").attr("x", (sideWidth - buttonWidth) / 2).attr("y", function (d, i) {
+    .data(primeCountriesLower).enter().append('rect').attr("class", "countrySelect").attr("x", (sideWidth - buttonWidth) / 2).attr("y", function (d, i) {
       return (i + 1) * (parseInt(sidePanel.style("height")) / 10);
     })
     .attr("height", parseInt(sidePanel.style("height")) / 11)
     .attr("width", buttonWidth);
 
   sidePanel.select(".graph").selectAll("text") //adds country select names
-    .data(primeCountries).enter().append('text').attr("class", "countryLabels").transition().attr("x", 18).attr("text-anchor", "left").attr("y", function (d, i) {
+    .data(primeCountriesLower)
+    .enter()
+    .append('text')
+    .attr("class", "countryLabels")
+    .transition()
+    .attr("x", 18)
+    .attr("text-anchor", "left")
+    .attr("y", function (d, i) {
       return parseInt((i + 1.6) * (parseInt(sidePanel.style("height")) / 10));
     }) //shift labels down so that they ligne up with les boits
-    .style("fill", "black").style("pointer-events", "none").text(function (d) {
+    .style("fill", "black")
+    .style("pointer-events", "none")
+    .text(function (d) {
       return d;
     });
 
   svg.attr("width", mapWidth).attr("height", mapHeight);
 
   var projection = d3.geoPatterson().scale(mapWidth / 6.3, mapHeight / 5).translate([mapWidth / 2, mapHeight / 2]).precision(0.3);
-
   var path = d3.geoPath().projection(projection);
 
   svg.append("path") //adds the grid
@@ -117,26 +119,72 @@ function buildMap(dataServerPath) {
       if (error) {
         throw error;
       }
-      countries.attr("class", "states").selectAll("path").data(topojson.feature(world, world.objects.countries).features).enter().append("path").attr("class", "countriePaths").attr("d", path).style("stroke-linejoin", "round").style("fill", "#a1a1a1").style("stroke", "#565656").attr("id", function (d) {
-        prevCountry = d.id;
-        if (primeCountriesLower.indexOf(getKey(d.id, 0, true)) > -1) {
-          d3.select(this).style("fill", "red");
-        }
+      countries.attr("class", "states")
+        .selectAll("path")
+        .data(topojson.feature(world, world.objects.countries).features)
+        .enter()
+        .append("path")
+        .attr("class", "countriePaths")
+        .attr("d", path)
+        .style("stroke-linejoin", "round")
+        .style("fill", "#bcbcbc")
+        .style("stroke", "#565656")
+        .attr("id", function (d) {
+          prevCountry = d.id;
 
-        return d.id;
-      });
+          return d.id;
+        });
+
+        addMapLegend();
     });
   });
 }
 
-function fillPC() {
-  //highlights primero countries in red after map updates
-  primeCountriesLower = ["Angola", "Indonesia", "Kenya", "Nigeria", "Nepal", "Jordan", "South Sudan", "Sudan", "Sierra Leone"];
-  d3.select("#map-container").select(".mapSVG").select(".states").selectAll("path").each(function (d) {
-    if (primeCountriesLower.indexOf(getKey(d.id, 0, true)) > -1) {
-      d3.select(this).style("fill", "red");
-    }
-  });
+function addMapLegend() {
+  //add color legend
+  var svg = d3.select(".mapSVG");
+  var colorInterval = maxRefugees / colorScaleLength;
+  for (var i = 0; i < colorScaleLength; i++) {
+    svg.append('rect')
+      .attr("class", "colorLegend")
+      .attr("x", 20)
+      .attr("y", parseInt(svg.style("height")) - (i * 5) - 20)
+      .attr("height", 5)
+      .attr("width", 10)
+      .style("fill", colorScale(i * colorInterval));
+  }
+  svg.append('text')
+    .attr("class", "colorLegendTitle")
+    .attr("x", 20)
+    .attr("y", parseInt(svg.style("height")) - (colorScaleLength * 5) - 24)
+    .style("pointer-events", "none")
+    .text("Refugees");
+  svg.append('text')
+    .attr("class", "colorLegendUnits")
+    .attr("x", 35)
+    .attr("y", parseInt(svg.style("height")) - (colorScaleLength * 5) - 12)
+    .style("pointer-events", "none")
+    .text(maxRefugees);
+  svg.append('text')
+    .attr("class", "colorLegendUnits")
+    .attr("x", 35)
+    .attr("y", parseInt(svg.style("height")) - 12)
+    .style("pointer-events", "none")
+    .text("1");
+  svg.append('rect')
+    .attr("class", "colorLegend")
+    .attr("x", 20)
+    .attr("y", parseInt(svg.style("height")) - (colorScaleLength * 5) - 15)
+    .attr("height", 1)
+    .attr("width", 14)
+    .style("fill", "black");
+  svg.append('rect')
+    .attr("class", "colorLegend")
+    .attr("x", 20)
+    .attr("y", parseInt(svg.style("height")) - 15)
+    .attr("height", 1)
+    .attr("width", 14)
+    .style("fill", "black");
 }
 
 function updateMap(countryData, year) {
@@ -157,18 +205,17 @@ function updateMap(countryData, year) {
   var countries = svg.select(".states");
   var selectedCountryObject;
   var scale = d3.scaleSqrt();
+
   scale.domain([0, 100]);
   scale.range([0, 90]);
-
   graphScale.domain([0, 2400]);
   graphScale.range([0, 75]);
+  countries.selectAll("path").style("fill", "#bcbcbc");
 
-  countries.selectAll("path").style("fill", "#a1a1a1");
-
-  fillPC();
-
-  var projection = d3.geoPatterson().scale(mapWidth / 6.3, mapHeight / 5).translate([mapWidth / 2, mapHeight / 2]).precision(1);
-
+  var projection = d3.geoPatterson()
+    .scale(mapWidth / 6.3, mapHeight / 5)
+    .translate([mapWidth / 2, mapHeight / 2])
+    .precision(1);
   var path = d3.geoPath().projection(projection);
   var movingCircles = svg.select(".movingCircle");
   var staticCircle = svg.select(".staticCircle");
@@ -179,17 +226,16 @@ function updateMap(countryData, year) {
     svg.selectAll("rect").remove();
     svg.select(".movingCircle").selectAll("circle").remove();
     svg.select(".staticCircle").selectAll("circle").remove();
+    addMapLegend();
   }
 
   clearAll();
 
   //handles country click
   countries.selectAll("path").on("click", function (d) {
-    countries.selectAll("path").style("fill", "#a1a1a1");
+    countries.selectAll("path").style("fill", "#bcbcbc");
 
-    fillPC();
-
-    d3.select(this).style("fill", d3.rgb(100, 20, 100));
+    d3.select(this).style("fill", "red");
 
     clearAll();
     selectedCountryObject = d;
@@ -207,16 +253,14 @@ function updateMap(countryData, year) {
   d3.select(".sidePanel").selectAll("rect").on("click", function (d) {
     var countKey = getKey(0, false);
     var country = d;
-
     var countCode = countKey[country].code;
-
-    var countElement = countries.selectAll("path").select("[id=" + "'" + countCode.toString() + "'" + "]");
+    var countElement = countries.selectAll("path")
+      .select("[id=" + "'" + countCode.toString() + "'" + "]");
 
     countries.selectAll("path").each(function (d, i) {
       if (d.id == countCode) {
-        countries.selectAll("path").style("fill", "#a1a1a1");
-        fillPC();
-        d3.select(this).style("fill", d3.rgb(100, 20, 100));
+        countries.selectAll("path").style("fill", "#bcbcbc");
+        d3.select(this).style("fill", "red");
         clearAll();
         selectedCountryObject = d;
         prevCountry = d;
@@ -231,24 +275,35 @@ function updateMap(countryData, year) {
   });
 
   function trans() {
-    movingCircles.selectAll("circle").transition().duration(4000).attr("cx", function (d) {
-      return d[0][0];
-    }) //moveTo
-    .attr("cy", function (d) {
-      return d[0][1];
-    }).attr("r", function (d) {
-      return d[1];
-    });
+    movingCircles.selectAll("circle")
+      .transition()
+      .duration(4000)
+      .attr("cx", function (d) {
+        return d[0][0];
+      }) //moveTo
+      .attr("cy", function (d) {
+        return d[0][1];
+      }).attr("r", function (d) {
+        return d[1];
+      });
   };
 
   function update(callback) {
-    movingCircles.selectAll("circle").attr("cx", selectedCenter[0]).attr("cy", selectedCenter[1]).on("end", callback);
+    movingCircles.selectAll("circle")
+      .attr("cx", selectedCenter[0])
+      .attr("cy", selectedCenter[1])
+      .on("end", callback);
   };
 
   function drawBars(countryID, parsedData) {
     //draws bottom of page graph
     var graphLeftMargin = 20;
-    var nameKey = [{ "undernourishment.csv": "Undernourishment", "perCapitaFoodSupply.csv": "Food Supply", "internetUsers.csv": "Internet Users", "poverty.csv": "Poverty" }];
+    var nameKey = [{
+      "undernourishment.csv": "Undernourishment",
+      "perCapitaFoodSupply.csv": "Food Supply",
+      "internetUsers.csv": "Internet Users",
+      "poverty.csv": "Poverty"
+    }];
 
     d3.select(".panelSVG").remove();
 
@@ -306,29 +361,26 @@ function updateMap(countryData, year) {
           var width = graphWidth;
           var height = 7 * graphHeight / 18;
           var height2 = graphHeight / 10;
-
           var parseDate = d3.timeParse("%Y");
-
-          var x = d3.scaleTime().range([0, width]),
-              x2 = d3.scaleTime().range([0, width]),
-              y = d3.scaleLinear().range([height, 0]),
-              y2 = d3.scaleLinear().range([height2, 0]);
-
-          var xAxis = d3.axisBottom(x),
-              xAxis2 = d3.axisBottom(x2),
-              yAxis = d3.axisLeft(y);
-
+          var x = d3.scaleTime().range([0, width]);
+          var x2 = d3.scaleTime().range([0, width]);
+          var y = d3.scaleLinear().range([height, 0]);
+          var y2 = d3.scaleLinear().range([height2, 0]);
+          var xAxis = d3.axisBottom(x);
+          var xAxis2 = d3.axisBottom(x2);
+          var yAxis = d3.axisLeft(y);
           var brush = d3.brushX().extent([[0, 0], [width, height2]]).on("brush end", brushed);
-
-          var zoom = d3.zoom().scaleExtent([1, Infinity]).translateExtent([[0, 0], [width, height]]).extent([[0, 0], [width, height]]).on("zoom", zoomed);
-
+          var zoom = d3.zoom()
+            .scaleExtent([1, Infinity])
+            .translateExtent([[0, 0], [width, height]])
+            .extent([[0, 0], [width, height]])
+            .on("zoom", zoomed);
           var area = d3.area() //main graph area
             .curve(d3.curveMonotoneX).x(function (d) {
               return x(parseDate(d[0]));
             }).y0(height).y1(function (d) {
               return y(d[1]);
             });
-
           var area2 = d3.area() //mini graph area
             .curve(d3.curveMonotoneX).x(function (d) {
               return x2(parseDate(d[0]));
@@ -340,8 +392,9 @@ function updateMap(countryData, year) {
 
           var focus = d3.select('.focus');
           var shift = parseInt(height) + parseInt(height2) + parseInt(height2) * 2;
-
-          var context = svg.append("g").attr("class", "context").attr("transform", "translate(" + margin2.left + "," + shift + ")"); //10 px buffer
+          var context = svg.append("g")
+            .attr("class", "context")
+            .attr("transform", "translate(" + margin2.left + "," + shift + ")"); //10 px buffer
 
           x.domain(d3.extent(keys, function (d) {
             return parseDate(d);
@@ -395,19 +448,35 @@ function updateMap(countryData, year) {
         var dataSelecter = d3.select(".dataSelecter");
 
         dataSelecter.selectAll('rect') //creates data type buttons
-        .data(["perCapitaFoodSupply.csv", "undernourishment.csv", "poverty.csv"]).enter().append('rect').attr("class", "attributeButtons").attr("x", function (d, i) {
-          return i * (graphWidth - margin.right) / 4;
-        }).attr("y", 5).attr("width", (graphWidth - margin.right) / 5).attr("height", selectButtonHeight).style("fill", "#67697C").on("click", function (d) {
-          dataSelect = d;
-          drawBars(prevCountry.id, parsed);
-        });
+          .data(["perCapitaFoodSupply.csv", "undernourishment.csv", "poverty.csv"])
+          .enter()
+          .append('rect')
+          .attr("class", "attributeButtons")
+          .attr("x", function (d, i) {
+            return i * (graphWidth - margin.right) / 4;
+          }).attr("y", 5)
+          .attr("width", (graphWidth - margin.right) / 5)
+          .attr("height", selectButtonHeight)
+          .style("fill", "#67697C")
+          .on("click", function (d) {
+            dataSelect = d;
+            drawBars(prevCountry.id, parsed);
+          });
 
         dataSelecter.selectAll('text') //adds text to data type buttons
-        .data(["Food Supply", "Undernourishment", "Poverty"]).enter().append('text').attr("class", "attributeButtonLabels").attr("text-anchor", "middle").attr("x", function (d, i) {
-          return i * (graphWidth - margin.right) / 4 + (graphWidth - margin.right) / 10;
-        }).attr("y", selectButtonHeight / 1.4 + 5).style("fill", "white").style("pointer-events", "none").text(function (d) {
-          return d;
-        });
+          .data(["Food Supply", "Undernourishment", "Poverty"])
+          .enter()
+          .append('text')
+          .attr("class", "attributeButtonLabels")
+          .attr("text-anchor", "middle")
+          .attr("x", function (d, i) {
+            return i * (graphWidth - margin.right) / 4 + (graphWidth - margin.right) / 10;
+          }).attr("y", selectButtonHeight / 1.4 + 5)
+          .style("fill", "white")
+          .style("pointer-events", "none")
+          .text(function (d) {
+            return d;
+          });
       } catch (err) {
         console.log(err);
         break;
@@ -476,24 +545,63 @@ function updateMap(countryData, year) {
       d3.select(this).style("fill", d3.rgb(gdpScaledValue / 2, gdpScaledValue / 4, gdpScaledValue));
 
       svg.append("line") //adds refugee lines
-      .attr("class", "countryLines").attr("x1", center[0][0]).attr("x2", selectedCenter[0]).attr("y1", center[0][1]).attr("y2", selectedCenter[1]).style("stroke", "black").style("stroke-width", 1).style("opacity", 0.30).style("pointer-events", "none");
+        .attr("class", "countryLines")
+        .attr("x1", center[0][0])
+        .attr("x2", selectedCenter[0])
+        .attr("y1", center[0][1])
+        .attr("y2", selectedCenter[1])
+        .style("stroke", "black")
+        .style("stroke-width", 1)
+        .style("opacity", 0.30)
+        .style("pointer-events", "none");
 
       movingCircles.append("circle") //adds refugee circles
-      .attr("id", "p" + Math.random()).datum(center).attr("cx", selectedCenter[0]).attr("cy", selectedCenter[1]).attr("r", 1).style("fill", d3.hsl(colorScale(size), 0.8, 0.5)).on("mouseover", function (d) {
-        var coor = d3.mouse(this);
-        var setText = Math.round(mainScale.invert(d[1])) + " - " + d[2];
+        .attr("id", "p" + Math.random())
+        .datum(center)
+        .attr("cx", selectedCenter[0])
+        .attr("cy", selectedCenter[1])
+        .attr("r", 1)
+        .style("fill", colorScale(temp[circleName]))
+        .on("mouseover", function (d) {
+          var coor = d3.mouse(this);
+          var setText = Math.round(mainScale.invert(d[1])) + " - " + d[2];
 
-        var text = movingCircles.append('text').attr("x", d[0][0]).attr("y", d[0][1]).style("pointer-events", "none").text(setText);
 
-        var bbox = text.node().getBBox();
-
-        movingCircles.append('rect').attr("x", d[0][0]).attr("y", d[0][1] - 16).attr("height", 20).attr("width", 1.5 * bbox.width).style("fill", "white").style("pointer-events", "none").style("fill", "black").attr("rx", 20).attr("ry", 20);
-
-        var text = movingCircles.append('text').attr("x", d[0][0] + 0.3 * bbox.width).attr("y", d[0][1]).style("pointer-events", "none").text(setText).style("fill", "white");
-      }).on("mouseout", function (d) {
-        movingCircles.selectAll('text').remove();
-        movingCircles.selectAll('rect').remove();
-      });
+          var countryTooltip = movingCircles.append('rect')
+            .attr("x", d[0][0])
+            .attr("y", d[0][1] - 16)
+            .attr("height", 25)
+            .style("fill", "white")
+            .style("pointer-events", "none")
+            .style("fill", "black")
+            .attr("rx", 12)
+            .attr("ry", 12);
+          var text = movingCircles.append('text')
+            .attr("class", "countryTooltipText")
+            .attr("x", d[0][0])
+            .attr("y", d[0][1])
+            .style("pointer-events", "none")
+            .text(setText)
+            .style("fill", "white");
+          var bbox = text.node().getBBox();
+          var test = parseInt(svg.style("width")) - bbox.width - 10;
+          countryTooltip.attr("width", 1.3 * bbox.width);
+          text.attr("x", d[0][0] + .13 * bbox.width);
+          var svg_width = parseInt(svg.style("width"));
+          var svg_height = parseInt(svg.style("height"));
+          //correct for tooltip going off the map
+          if(d[0][0] + bbox.width > svg_width) {
+            countryTooltip.attr("x", svg_width - bbox.width * 1.5 - 10);
+            text.attr("x", svg_width - bbox.width * 1.5 + .06 * bbox.width)
+          }
+          if(d[0][1] + bbox.height > svg_height) {
+            countryTooltip.attr("y", svg_height - 26);
+            text.attr("y", svg_height - 10)
+          }
+        }).on("mouseout", function (d) {
+          movingCircles.selectAll('text').remove();
+          movingCircles.selectAll('rect').remove();
+        });
     });
   }
 }

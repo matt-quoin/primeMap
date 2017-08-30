@@ -193,3 +193,20 @@ html, body {
   position: relative;
   float: left;
 }
+
+.colorLegendTitle,
+.colorLegendUnits,
+.countryTooltipText {
+  font-family: geomanist-regular-webfont, "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+  font-size: 1vw;
+}
+
+.colorLegendUnits {
+  font-size: .8vw;
+}
+
+.countryTooltip {
+
+}
+
+}
