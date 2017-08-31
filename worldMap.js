@@ -8,7 +8,7 @@ var mapHeight;
 var graphWidth;
 var graphHeight;
 var margin = { top: 20, right: 5, bottom: 20, left: 15 };
-var margin2 = { top: 20, right: 5, bottom: 20, left: 15 };
+var marginCountryButton = { top: 20, right: 5, bottom: 20, left: 15 };
 var dataSelect = "perCapitaFoodSupply.csv";
 var selectButtonHeight = 20;
 var primeCountries = ["AFGHANISTAN", "ALBANIA", "ALGERIA", "AMERICAN SAMOA", "ANDORRA", "ANGOLA", "ANGUILLA", "ANTIGUA AND BARBUDA", "ARGENTINA", "ARMENIA", "ARUBA", "IA", "AUSTRIA", "AZERBAIJAN", "BAHAMAS", "BAHRAIN", "BANGLADESH", "BARBADOS", "BELARUS", "BELGIUM", "BELIZE", "BENIN", "BERMUDA", "BHUTAN", "BOLIVIA", "BONAIRE", "BOSNIA-HERZEGOVINA", "BOTSWANA", "BOUVET ISLAND", "BRAZIL", "BRUNEI", "BULGARIA", "BURKINA FASO", "BURUNDI", "CAMBODIA", "CAMEROON", "CANADA", "CAPE VERDE", "CAYMAN ISLANDS", "CENTRAL ARICAN REPUBLIC", "CHAD", "CHILE", "CHINA", "CHRISTMAS ISLAND", "COCOS (KEELING) ISLANDS", "COLOMBIA", "COMOROS", "CONGO", "COOK ISLANDS", "COSTA RICA", "CROATIA", "CUBA", "CYPRUS", "CZECH REP.", "DENMARK", "DJIBOUTI", "DOMINICA", "DOMINICAN REPUBLIC", "ECUADOR", "EGYPT", "EL SALVADOR", "EQUATORIAL GUINEA", "ERITREA", "ESTONIA", "ETHIOPIA", "FALKLAND ISLANDS", "FAROE ISLANDS", "FIJI", "FINLAND", "FRANCE", "FRENCH GUIANA", "GABON", "GAMBIA", "GEORGIA", "GERMANY", "GHANA", "GIBRALTAR", "GREECE", "GREENLAND", "GRENADA", "GUATEMALA", "GUINEA", "GUINEA BISSAU", "GUYANA", "HAITI", "HOLY SEE", "HONDURAS", "HONG KONG", "HUNGARY", "ICELAND", "INDIA", "INDONESIA", "IRAN", "IRAQ", "IRELAND", "ISRAEL", "ITALY", "IVORY COAST", "JAMAICA", "JAPAN", "JORDAN", "KAZAKHSTAN", "KENYA", "KIRIBATI", "KOSOVO", "KUWAIT", "KYRGYZSTAN", "LAOS", "LATVIA", "LEBANON", "LESOTHO", "LIBERIA", "LIBYA", "LIECHTENSTEIN", "LITHUANIA", "LUXEMBOURG", "MACAU", "MACEDONIA", "MADAGASCAR", "MALAWI", "MALAYSIA", "MALDIVES", "MALI", "MALTA", "MARSHALL ISLANDS", "MAURITANIA", "MAURITIUS", "MAYOTTE", "MEXICO", "MICRONESIA", "MOLDOVA", "MONACO", "MONGOLIA", "MONTENEGRO", "MONTSERRAT", "MOROCCO", "MOZAMBIQUE", "MYANMAR", "NAMIBIA", "NAURU", "NEPAL", "NETHERLANDS", "NETHERLANDS ANTILLES", "NEW ZEALAND", "NICARAGUA", "NIGER", "NIGERIA", "NIUE", "NORFOLK ISLAND", "NORTH KOREA", "NORTHERN MARIANA ISLANDS", "NORWAY", "OMAN", "PAKISTAN", "PALAU", "PANAMA", "PAPUA NEW GUINEA", "PARAGUAY", "PERU", "PHILIPPINES", "PITCAIRN ISLAND", "POLAND", "POLYNESIA (FRENCH)", "PORTUGAL", "PUERTO RICO", "QATAR", "RNION", "ROMANIA", "RUSSIA", "RWANDA", "SAINT HELENA", "SAINT KITTS AND NEVIS", "SAINT LUCIA", "SAINT PIERRE AND MIQUELON", "SAINT VINCENT AND GRENADINES", "SAMOA", "SAN MARINO", "SAO TOME AND PRINCIPE", "SAUDI ARABIA", "SENEGAL", "SERBIA", "SEYCHELLES", "SIERRA LEONE", "SINGAPORE", "SINT MAARTEN", "SLOVAKIA", "SLOVENIA", "SOLOMON ISLANDS", "SOMALIA", "SOUTH AFRICA", "SOUTH GEORGIA AND SOUTH SANDWICH ISLANDS", "SOUTH KOREA", "SOUTH SUDAN", "SOUTH SUDAN", "SPAIN", "SRI LANKA", "SUDAN", "SURINAME", "SVALBARD AND JAN MAYEN ISLANDS", "SWAZILAND", "SWEDEN", "SWITZERLAND", "SYRIA", "TAIWAN", "TAJIKISTAN", "TANZANIA", "THAILAND", "TIMOR-LESTE (EAST TIMOR)", "TOGO", "TOKELAU", "TONGA", "TRINIDAD AND TOBAGO", "TUNISIA", "TURKEY", "TURKMENISTAN", "TURKS AND CAICOS ISLANDS", "TUVALU", "UGANDA", "UKRAINE", "UNITED ARAB EMIRATES", "UNITED KINGDOM", "UNITED STATES", "URUGUAY", "UZBEKISTAN", "VANUATU", "VENEZUELA", "VIETNAM", "VIRGIN ISLANDS", "WALLIS AND FUTUNA ISLANDS", "YEMEN", "ZAMBIA", "ZIMBABWE"];
@@ -74,28 +74,59 @@ function buildMap(dataServerPath, initialize) {
   mapHeight = parseInt(svg.style("height"));
 
   var sideWidth = parseInt(sidePanel.style("width"));
-  var buttonWidth = parseInt(sidePanel.style("width")) - margin.right - margin.left;
+  // var buttonWidth = parseInt(sidePanel.style("width")) - margin.right - margin.left;
 
-  sidePanel.append('g').attr("class", "graph").selectAll('rect') //adds country select buttons
-    .data(primeCountriesLower).enter().append('rect').attr("class", "countrySelect").attr("x", (sideWidth - buttonWidth) / 2).attr("y", function (d, i) {
-      return (i + 1) * (parseInt(sidePanel.style("height")) / 10);
-    })
-    .attr("height", parseInt(sidePanel.style("height")) / 11)
+  // sidePanel.append('g').attr("class", "graph").selectAll('rect') //adds country select buttons
+  //   .data(primeCountriesLower).enter().append('rect').attr("class", "countrySelect").attr("x", (sideWidth - buttonWidth) / 2).attr("y", function (d, i) {
+  //     return (i + 1) * (parseInt(sidePanel.style("height")) / 10);
+  //   })
+  //   .attr("height", parseInt(sidePanel.style("height")) / 11)
+  //   .attr("width", buttonWidth);
+
+  // sidePanel.select(".graph").selectAll("text") //adds country select names
+  //   .data(primeCountriesLower)
+  //   .enter()
+  //   .append('text')
+  //   .attr("class", "countryLabels")
+  //   .transition()
+  //   .attr("x", 18)
+  //   .attr("text-anchor", "left")
+  //   .attr("y", function (d, i) {
+  //     return parseInt((i + 1.6) * (parseInt(sidePanel.style("height")) / 10));
+  //   }) //shift labels down so that they ligne up with les boits
+  //   .style("fill", "black")
+  //   .style("pointer-events", "none")
+  //   .text(function (d) {
+  //     return d;
+  //   });
+
+  var buttonWidth = (parseInt(sidePanel.style("width")) - ((marginCountryButton.right + marginCountryButton.left) * 9)) / 9;
+
+  sidePanel.append('g')
+    .attr("class", "graph")
+    .selectAll('rect') //adds country select buttons
+    .data(primeCountries)
+    .enter()
+    .append('rect')
+    .attr("class", "countrySelect")
+    .attr("x", function (d, i) {
+      return i * (parseInt(sidePanel.style("width")) / 9) + marginCountryButton.left;
+    }).attr("y", (marginCountryButton.top))
+    .attr("height", parseInt(sidePanel.style("height")))
     .attr("width", buttonWidth);
-
-  sidePanel.select(".graph").selectAll("text") //adds country select names
-    .data(primeCountriesLower)
+  sidePanel.select(".graph")
+    .selectAll("text") //adds country select names
+    .data(primeCountries)
     .enter()
     .append('text')
     .attr("class", "countryLabels")
     .transition()
-    .attr("x", 18)
-    .attr("text-anchor", "left")
-    .attr("y", function (d, i) {
-      return parseInt((i + 1.6) * (parseInt(sidePanel.style("height")) / 10));
-    }) //shift labels down so that they ligne up with les boits
+    .attr("x", function (d, i) {
+      return (i * (buttonWidth + marginCountryButton.right + marginCountryButton.left) + (buttonWidth / 2));
+    }).attr("y", parseInt(sidePanel.style("height")) / 2 + 8) //shift labels down so that they ligne up with les boits
     .style("fill", "black")
     .style("pointer-events", "none")
+    .style("text-anchor", "middle")
     .text(function (d) {
       return d;
     });
@@ -394,7 +425,7 @@ function updateMap(countryData, year) {
           var shift = parseInt(height) + parseInt(height2) + parseInt(height2) * 2;
           var context = svg.append("g")
             .attr("class", "context")
-            .attr("transform", "translate(" + margin2.left + "," + shift + ")"); //10 px buffer
+            .attr("transform", "translate(" + margin.left + "," + shift + ")"); //10 px buffer
 
           x.domain(d3.extent(keys, function (d) {
             return parseDate(d);

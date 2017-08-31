@@ -167,15 +167,15 @@ html, body {
 }
 
 #map-container {
-  width: 79vw;
+  width: 100vw;
   height: 64vh;
   position: relative;
   float: left;
 }
 
 #side-bar-container {
-  width: 20vw;
-  height: 64vh;
+  width: 100vw;
+  height: 5vh;
   position: relative;
   float: left;
 }
