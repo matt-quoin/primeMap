@@ -8,8 +8,8 @@ var mapHeight;
 var graphWidth;
 var graphHeight;
 var margin = { top: 20, right: 5, bottom: 20, left: 15 };
-var marginCountryButton = { top: 20, right: 5, bottom: 20, left: 15 };
-var dataSelect = "perCapitaFoodSupply.csv";
+var marginCountryButton = { top: 2, right: 2, bottom: 2, left: 2 };
+var dataSelect = ["perCapitaFoodSupply.csv", "undernourishment.csv", "poverty.csv"];
 var selectButtonHeight = 20;
 var primeCountries = ["AFGHANISTAN", "ALBANIA", "ALGERIA", "AMERICAN SAMOA", "ANDORRA", "ANGOLA", "ANGUILLA", "ANTIGUA AND BARBUDA", "ARGENTINA", "ARMENIA", "ARUBA", "IA", "AUSTRIA", "AZERBAIJAN", "BAHAMAS", "BAHRAIN", "BANGLADESH", "BARBADOS", "BELARUS", "BELGIUM", "BELIZE", "BENIN", "BERMUDA", "BHUTAN", "BOLIVIA", "BONAIRE", "BOSNIA-HERZEGOVINA", "BOTSWANA", "BOUVET ISLAND", "BRAZIL", "BRUNEI", "BULGARIA", "BURKINA FASO", "BURUNDI", "CAMBODIA", "CAMEROON", "CANADA", "CAPE VERDE", "CAYMAN ISLANDS", "CENTRAL ARICAN REPUBLIC", "CHAD", "CHILE", "CHINA", "CHRISTMAS ISLAND", "COCOS (KEELING) ISLANDS", "COLOMBIA", "COMOROS", "CONGO", "COOK ISLANDS", "COSTA RICA", "CROATIA", "CUBA", "CYPRUS", "CZECH REP.", "DENMARK", "DJIBOUTI", "DOMINICA", "DOMINICAN REPUBLIC", "ECUADOR", "EGYPT", "EL SALVADOR", "EQUATORIAL GUINEA", "ERITREA", "ESTONIA", "ETHIOPIA", "FALKLAND ISLANDS", "FAROE ISLANDS", "FIJI", "FINLAND", "FRANCE", "FRENCH GUIANA", "GABON", "GAMBIA", "GEORGIA", "GERMANY", "GHANA", "GIBRALTAR", "GREECE", "GREENLAND", "GRENADA", "GUATEMALA", "GUINEA", "GUINEA BISSAU", "GUYANA", "HAITI", "HOLY SEE", "HONDURAS", "HONG KONG", "HUNGARY", "ICELAND", "INDIA", "INDONESIA", "IRAN", "IRAQ", "IRELAND", "ISRAEL", "ITALY", "IVORY COAST", "JAMAICA", "JAPAN", "JORDAN", "KAZAKHSTAN", "KENYA", "KIRIBATI", "KOSOVO", "KUWAIT", "KYRGYZSTAN", "LAOS", "LATVIA", "LEBANON", "LESOTHO", "LIBERIA", "LIBYA", "LIECHTENSTEIN", "LITHUANIA", "LUXEMBOURG", "MACAU", "MACEDONIA", "MADAGASCAR", "MALAWI", "MALAYSIA", "MALDIVES", "MALI", "MALTA", "MARSHALL ISLANDS", "MAURITANIA", "MAURITIUS", "MAYOTTE", "MEXICO", "MICRONESIA", "MOLDOVA", "MONACO", "MONGOLIA", "MONTENEGRO", "MONTSERRAT", "MOROCCO", "MOZAMBIQUE", "MYANMAR", "NAMIBIA", "NAURU", "NEPAL", "NETHERLANDS", "NETHERLANDS ANTILLES", "NEW ZEALAND", "NICARAGUA", "NIGER", "NIGERIA", "NIUE", "NORFOLK ISLAND", "NORTH KOREA", "NORTHERN MARIANA ISLANDS", "NORWAY", "OMAN", "PAKISTAN", "PALAU", "PANAMA", "PAPUA NEW GUINEA", "PARAGUAY", "PERU", "PHILIPPINES", "PITCAIRN ISLAND", "POLAND", "POLYNESIA (FRENCH)", "PORTUGAL", "PUERTO RICO", "QATAR", "RNION", "ROMANIA", "RUSSIA", "RWANDA", "SAINT HELENA", "SAINT KITTS AND NEVIS", "SAINT LUCIA", "SAINT PIERRE AND MIQUELON", "SAINT VINCENT AND GRENADINES", "SAMOA", "SAN MARINO", "SAO TOME AND PRINCIPE", "SAUDI ARABIA", "SENEGAL", "SERBIA", "SEYCHELLES", "SIERRA LEONE", "SINGAPORE", "SINT MAARTEN", "SLOVAKIA", "SLOVENIA", "SOLOMON ISLANDS", "SOMALIA", "SOUTH AFRICA", "SOUTH GEORGIA AND SOUTH SANDWICH ISLANDS", "SOUTH KOREA", "SOUTH SUDAN", "SOUTH SUDAN", "SPAIN", "SRI LANKA", "SUDAN", "SURINAME", "SVALBARD AND JAN MAYEN ISLANDS", "SWAZILAND", "SWEDEN", "SWITZERLAND", "SYRIA", "TAIWAN", "TAJIKISTAN", "TANZANIA", "THAILAND", "TIMOR-LESTE (EAST TIMOR)", "TOGO", "TOKELAU", "TONGA", "TRINIDAD AND TOBAGO", "TUNISIA", "TURKEY", "TURKMENISTAN", "TURKS AND CAICOS ISLANDS", "TUVALU", "UGANDA", "UKRAINE", "UNITED ARAB EMIRATES", "UNITED KINGDOM", "UNITED STATES", "URUGUAY", "UZBEKISTAN", "VANUATU", "VENEZUELA", "VIETNAM", "VIRGIN ISLANDS", "WALLIS AND FUTUNA ISLANDS", "YEMEN", "ZAMBIA", "ZIMBABWE"];
 var primeCountriesLower = ["Angola", "Indonesia", "Kenya", "Nigeria", "Nepal", "Jordan", "South Sudan", "Sudan", "Sierra Leone"];
@@ -26,19 +26,37 @@ var colorScale = d3.scaleLinear()
   .range([d3.rgb("#007AFF"), d3.rgb('#FFF500')]);
 
 function clear() {
-  d3.select("body").select(".mapSVG").select(".countries").selectAll("path").style("fill", "black");
+  d3.select("body")
+    .select(".mapSVG")
+    .select(".countries")
+    .selectAll("path")
+    .style("fill", "black");
 }
 
 function reDraw() {
-  var topPanel = d3.select("#graph-container").append('svg').attr("width", '100%').attr("height", '100%').attr("class", "panelSVG");
-
+  var topPanel = d3.select("#graph-container")
+    .append("svg")
+    .attr("width", "100%")
+    .attr("height", "100%")
+    .attr("class", "panelSVG");
   topPanel.append("g").attr("class", "xaxis");
   topPanel.append("g").attr("class", "yaxis");
   topPanel.append("defs").append("clipPath").attr("id", "clip");
-  topPanel.append('g').attr("class", "graphTitle").append('text');
+  topPanel.append("g").attr("class", "graphTitle").append("text");
 
-  topPanel.append("g") //main map
-  .attr("class", "focus").attr("transform", "translate(" + margin.left + "," + 30 + ")");
+
+  topPanel.selectAll(".focus")
+    .data(dataSelect)
+    .enter()
+    .append("g")
+    .attr("class", function (d, i) {
+      return "focus" + i;
+    })
+    .attr("transform", function (d, i) {
+      console.log('the I: ', i, d);
+      var offset = 40 * i + 20;
+      return "translate(" + margin.left + "," + offset + ")";
+    });
 
   topPanel.append("g").attr("class", "dataSelecter"); //data select
 
@@ -54,18 +72,36 @@ function buildMap(dataServerPath, initialize) {
   var countCode;
   var divElement = d3.select("#map-container");
   var sidebarElement = d3.select("#side-bar-container");
-  var svg = divElement.append('svg').attr("x", 0).attr("y", 0).attr("width", '100%').attr("height", '100%').attr("class", "mapSVG");
-  var sidePanel = sidebarElement.append("svg").attr("width", "100%").attr("height", "100%").attr("class", "sidePanel");
+  var yearElement = d3.select("#slider-year");
+  var svg = divElement.append('svg')
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("width", '100%')
+    .attr("height", '100%')
+    .attr("class", "mapSVG");
+  var sidePanel = sidebarElement.append("svg")
+    .attr("width", "100%")
+    .attr("height", "100%")
+    .attr("class", "sidePanel");
+  var yearDisplay = yearElement.append("svg")
+    .attr("width", "100%")
+    .attr("height", "100%")
+    .attr("class", "yearDisplay");
   var topPanel = reDraw();
-  var countries = svg.append("g").attr("class", "countries");
-  var movingCircles = svg.append("g").attr("class", "movingCircle");
-  var staticCircle = svg.append("g").attr("class", "staticCircle");
+  var countries = svg
+  .append("g")
+    .attr("class", "countries");
+  var movingCircles = svg.append("g")
+    .attr("class", "movingCircle");
+  var staticCircle = svg.append("g")
+    .attr("class", "staticCircle");
 
   setCountries(primeCountries); //selects all countries for data parsing
-  sidePanel.append('text')
+  yearDisplay.append('text')
     .attr("class", "yearText")
-    .attr("x", parseInt(sidePanel.style("width")) / 3)
-    .attr("y", parseInt(sidePanel.style("height")) / 15)
+    .attr("x", parseInt(yearDisplay.style("width")) / 2)
+    .attr("y", parseInt(yearDisplay.style("height")) / 2)
+    .style("text-anchor", "middle")
     .style("stroke", "black")
     .text("");
   graphWidth = parseInt(topPanel.style("width")); //gets number valus for svg widths and heights
@@ -73,39 +109,12 @@ function buildMap(dataServerPath, initialize) {
   mapWidth = parseInt(svg.style("width"));
   mapHeight = parseInt(svg.style("height"));
 
-  var sideWidth = parseInt(sidePanel.style("width"));
-  // var buttonWidth = parseInt(sidePanel.style("width")) - margin.right - margin.left;
-
-  // sidePanel.append('g').attr("class", "graph").selectAll('rect') //adds country select buttons
-  //   .data(primeCountriesLower).enter().append('rect').attr("class", "countrySelect").attr("x", (sideWidth - buttonWidth) / 2).attr("y", function (d, i) {
-  //     return (i + 1) * (parseInt(sidePanel.style("height")) / 10);
-  //   })
-  //   .attr("height", parseInt(sidePanel.style("height")) / 11)
-  //   .attr("width", buttonWidth);
-
-  // sidePanel.select(".graph").selectAll("text") //adds country select names
-  //   .data(primeCountriesLower)
-  //   .enter()
-  //   .append('text')
-  //   .attr("class", "countryLabels")
-  //   .transition()
-  //   .attr("x", 18)
-  //   .attr("text-anchor", "left")
-  //   .attr("y", function (d, i) {
-  //     return parseInt((i + 1.6) * (parseInt(sidePanel.style("height")) / 10));
-  //   }) //shift labels down so that they ligne up with les boits
-  //   .style("fill", "black")
-  //   .style("pointer-events", "none")
-  //   .text(function (d) {
-  //     return d;
-  //   });
-
   var buttonWidth = (parseInt(sidePanel.style("width")) - ((marginCountryButton.right + marginCountryButton.left) * 9)) / 9;
 
   sidePanel.append('g')
     .attr("class", "graph")
     .selectAll('rect') //adds country select buttons
-    .data(primeCountries)
+    .data(primeCountriesLower)
     .enter()
     .append('rect')
     .attr("class", "countrySelect")
@@ -116,14 +125,14 @@ function buildMap(dataServerPath, initialize) {
     .attr("width", buttonWidth);
   sidePanel.select(".graph")
     .selectAll("text") //adds country select names
-    .data(primeCountries)
+    .data(primeCountriesLower)
     .enter()
     .append('text')
     .attr("class", "countryLabels")
     .transition()
     .attr("x", function (d, i) {
       return (i * (buttonWidth + marginCountryButton.right + marginCountryButton.left) + (buttonWidth / 2));
-    }).attr("y", parseInt(sidePanel.style("height")) / 2 + 8) //shift labels down so that they ligne up with les boits
+    }).attr("y", parseInt(sidePanel.style("height")) / 1.5) //shift labels down so that they ligne up with les boits
     .style("fill", "black")
     .style("pointer-events", "none")
     .style("text-anchor", "middle")
@@ -133,7 +142,10 @@ function buildMap(dataServerPath, initialize) {
 
   svg.attr("width", mapWidth).attr("height", mapHeight);
 
-  var projection = d3.geoPatterson().scale(mapWidth / 6.3, mapHeight / 5).translate([mapWidth / 2, mapHeight / 2]).precision(0.3);
+  var projection = d3.geoPatterson()
+    .scale(mapWidth / 6.3, mapHeight / 5)
+    .translate([mapWidth / 2, mapHeight / 2])
+    .precision(0.3);
   var path = d3.geoPath().projection(projection);
 
   svg.append("path") //adds the grid
@@ -173,6 +185,7 @@ function addMapLegend() {
   //add color legend
   var svg = d3.select(".mapSVG");
   var colorInterval = maxRefugees / colorScaleLength;
+
   for (var i = 0; i < colorScaleLength; i++) {
     svg.append('rect')
       .attr("class", "colorLegend")
@@ -182,6 +195,7 @@ function addMapLegend() {
       .attr("width", 10)
       .style("fill", colorScale(i * colorInterval));
   }
+
   svg.append('text')
     .attr("class", "colorLegendTitle")
     .attr("x", 20)
@@ -235,6 +249,7 @@ function updateMap(countryData, year) {
   var selectedCountryObject;
   var scale = d3.scaleSqrt();
 
+  svg.selectAll(".countryLines").remove();
   scale.domain([0, 100]);
   scale.range([0, 90]);
   graphScale.domain([0, 2400]);
@@ -253,11 +268,17 @@ function updateMap(countryData, year) {
     svg.selectAll("line").remove();
     svg.selectAll("circle").remove();
     svg.selectAll("rect").remove();
-    svg.select(".movingCircle").selectAll("circle").remove();
-    svg.select(".staticCircle").selectAll("circle").remove();
-    svg.selectAll('.countryTooltip').remove();
-    svg.selectAll('.countryTooltipText').remove();
-    countries.selectAll("path").on("mouseover", null).on("mouseout", null);
+    svg.select(".movingCircle")
+      .selectAll("circle")
+      .remove();
+    svg.select(".staticCircle")
+      .selectAll("circle")
+      .remove();
+    svg.selectAll(".countryTooltip").remove();
+    svg.selectAll(".countryTooltipText").remove();
+    countries.selectAll("path")
+      .on("mouseover", null)
+      .on("mouseout", null);
     addMapLegend();
   }
 
@@ -340,58 +361,19 @@ function updateMap(countryData, year) {
 
     reDraw();
 
+    var svg = d3.select(".panelSVG");
+
     for (var y1 = 0; y1 < parsedData.length; y1++) {
 
       var lowerString = parsedData[y1].key;
       var countryName = getKey(countryID, 0, true);
 
       try {
-        var brushed = function brushed() {
-          if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") {
-            return; // ignore brush-by-zoom
-          }
-
-          var s = d3.event.selection || x2.range();
-          x.domain(s.map(x2.invert, x2));
-          focus.select(".area").attr("d", area);
-          focus.select(".axis--x").call(xAxis);
-          svg.select(".zoom").call(zoom.transform, d3.zoomIdentity.scale(width / (s[1] - s[0])).translate(-s[0], 0));
-        };
-
-        var zoomed = function zoomed() {
-          if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") {
-            return; // ignore zoom-by-brush
-          }
-          var t = d3.event.transform;
-          x.domain(t.rescaleX(x2).domain()); //resets x domain to match little graph
-          focus.select(".area").attr("d", area);
-          focus.select(".axis--x").call(xAxis);
-          context.select(".brush").call(brush.move, x.range().map(t.invertX, t));
-        };
-
-        var type = function type(d) {
-          d = parseDate(d);
-          return d;
-        };
-
         if (typeof lowerString !== 'undefined' && lowerString.toLowerCase() == countryName.toLowerCase()) {
           //if the country path selected matches the country name in the data
-          var numbersOnly = Object.values(parsedData[y1][dataSelect]['values'][0]);
-          var keys = Object.keys(parsedData[y1][dataSelect]['values'][0]);
-
-          numbersOnly = numbersOnly.slice(0, numbersOnly.length - 2); //get's rid of country tag
-          keys = keys.slice(0, keys.length - 2); //years for axis labels
-
-          var dataStoreFinal = [];
-
-          for (var t = 0; t < keys.length; t++) {
-            dataStoreFinal.push([keys[t], numbersOnly[t]]);
-          }
-
-          var svg = d3.select(".panelSVG");
-          var width = graphWidth;
-          var height = 7 * graphHeight / 18;
-          var height2 = graphHeight / 10;
+          var width = graphWidth * .9;
+          var height = graphHeight * .16;
+          var height2 = graphHeight * .04;
           var parseDate = d3.timeParse("%Y");
           var x = d3.scaleTime().range([0, width]);
           var x2 = d3.scaleTime().range([0, width]);
@@ -400,7 +382,9 @@ function updateMap(countryData, year) {
           var xAxis = d3.axisBottom(x);
           var xAxis2 = d3.axisBottom(x2);
           var yAxis = d3.axisLeft(y);
-          var brush = d3.brushX().extent([[0, 0], [width, height2]]).on("brush end", brushed);
+          var brush = d3.brushX()
+            .extent([[0, 0], [width, height2]])
+            .on("brush end", brushed);
           var zoom = d3.zoom()
             .scaleExtent([1, Infinity])
             .translateExtent([[0, 0], [width, height]])
@@ -419,39 +403,66 @@ function updateMap(countryData, year) {
               return y2(d[1]);
             });
 
-          svg.select("#clip").append("rect").attr("width", width).attr("height", height);
+          for (var setnum = 0; setnum < dataSelect.length; setnum++) {
+            var numbersOnly = Object.values(parsedData[y1][dataSelect[setnum]]['values'][0]);
+            var keys = Object.keys(parsedData[y1][dataSelect[setnum]]['values'][0]);
+            numbersOnly = numbersOnly.slice(0, numbersOnly.length - 2); //get's rid of country tag
+            keys = keys.slice(0, keys.length - 2); //years for axis labels
 
-          var focus = d3.select('.focus');
-          var shift = parseInt(height) + parseInt(height2) + parseInt(height2) * 2;
+            var dataStoreFinal = [];
+
+            for (var t = 0; t < keys.length; t++) {
+              dataStoreFinal.push([keys[t], numbersOnly[t]]);
+            }
+
+            svg.select("#clip")
+              .append("rect")
+              .attr("width", width)
+              .attr("height", height);
+
+            var graphOffset = ((graphHeight * .2) + (graphHeight * .08)) * setnum + (graphHeight * .12);
+            var focus = d3.select('.focus' + setnum)
+              .attr("transform", "translate(" + graphWidth * .04 + "," + graphOffset + ")");
+
+            x.domain(d3.extent(keys, function (d) {
+              return parseDate(d);
+            }));
+            y.domain(d3.extent(numbersOnly, function (d) {
+              return +d;
+            }));
+            x2.domain(x.domain());
+            y2.domain(y.domain());
+            focus.append("path")
+              .datum(dataStoreFinal)
+              .attr("class", "area")
+              .attr("d", area)
+              .attr("transform", "translate(" + graphLeftMargin + "," + 0 + ")");
+
+            focus.append("g")
+              .attr("class", "axis axis--x")
+              .attr("transform", "translate(" + graphLeftMargin + "," + height + ")")
+              .call(xAxis);
+
+            focus.append("g")
+              .attr("class", "axis axis--y")
+              .attr("transform", "translate(" + graphLeftMargin + "," + 0 + ")")
+              .style("font-size", graphHeight * .015)
+              .call(yAxis);
+
+            focus.append('text')
+              .attr("class", "graphTitleText")
+              .attr("x", graphWidth * .03)
+              .attr("y", -6)
+              .style("font-size", "1.8vw")
+              .style("font-family", "Helvetica Neue")
+              .text(nameKey[0][dataSelect[setnum]]);
+          };
+
+          var shift = graphHeight - (graphHeight * .1);
           var context = svg.append("g")
             .attr("class", "context")
-            .attr("transform", "translate(" + margin.left + "," + shift + ")"); //10 px buffer
-
-          x.domain(d3.extent(keys, function (d) {
-            return parseDate(d);
-          }));
-          y.domain(d3.extent(numbersOnly, function (d) {
-            return +d;
-          }));
-          x2.domain(x.domain());
-          y2.domain(y.domain());
-
-          focus.append("path")
-            .datum(dataStoreFinal)
-            .attr("class", "area")
-            .attr("d", area)
-            .attr("transform", "translate(" + graphLeftMargin + "," + 0 + ")");
-
-          focus.append("g")
-            .attr("class", "axis axis--x")
-            .attr("transform", "translate(" + graphLeftMargin + "," + height + ")")
-            .call(xAxis);
-
-          focus.append("g")
-            .attr("class", "axis axis--y")
-            .attr("transform", "translate(" + graphLeftMargin + "," + 0 + ")")
-            .call(yAxis);
-
+            .attr("height", graphHeight * .2)
+            .attr("transform", "translate(" + graphWidth * .06 + "," + shift + ")"); //10 px buffer
           context.append("path")
             .datum(dataStoreFinal)
             .attr("class", "areaContex")
@@ -467,47 +478,56 @@ function updateMap(countryData, year) {
             .call(brush)
             .call(brush.move, x.range());
 
-          focus.append('text')
-            .attr("class", "graphTitleText")
-            .attr("x", graphWidth / 2 - margin.left - margin.right)
-            .attr("y", selectButtonHeight)
-            .style("font-size", "1.8vw")
+          context.selectAll('.handle')
+            .style("cursor", "ew-resize")
+            .style("stroke", "#b2b1b6")
+            .style("stroke-width", 1)
+            .style("fill", "#ebe7e8");
+
+          svg.append('text')
+            .attr("class", "graphContainerTitleText")
+            .style("text-anchor", "middle")
+            .attr("x", graphWidth * .5)
+            .attr("y", graphHeight * .05)
+            .style("font-size", "2vw")
             .style("font-family", "Helvetica Neue")
-            .text(nameKey[0][dataSelect] + "-" + getKey(prevCountry.id, 0, true));
-        };
+            .text(getKey(prevCountry.id, 0, true));
+        }
 
-        var dataSelecter = d3.select(".dataSelecter");
+        function brushed() {
+          if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") {
+            return; // ignore brush-by-zoom
+          }
 
-        dataSelecter.selectAll('rect') //creates data type buttons
-          .data(["perCapitaFoodSupply.csv", "undernourishment.csv", "poverty.csv"])
-          .enter()
-          .append('rect')
-          .attr("class", "attributeButtons")
-          .attr("x", function (d, i) {
-            return i * (graphWidth - margin.right) / 4;
-          }).attr("y", 5)
-          .attr("width", (graphWidth - margin.right) / 5)
-          .attr("height", selectButtonHeight)
-          .style("fill", "#67697C")
-          .on("click", function (d) {
-            dataSelect = d;
-            drawBars(prevCountry.id, parsed);
-          });
+          var s = d3.event.selection || x2.range();
+          x.domain(s.map(x2.invert, x2));
+          for (var setnum = 0; setnum < dataSelect.length; setnum++) {
+            var focus = d3.select('.focus' + setnum);
+            console.log('focus ', area);
+            //focus.select(".area").attr("d", area);
+            focus.select(".axis--x").call(xAxis);
+          }
+          svg.select(".zoom").call(zoom.transform, d3.zoomIdentity.scale(width / (s[1] - s[0])).translate(-s[0], 0));
+        }
 
-        dataSelecter.selectAll('text') //adds text to data type buttons
-          .data(["Food Supply", "Undernourishment", "Poverty"])
-          .enter()
-          .append('text')
-          .attr("class", "attributeButtonLabels")
-          .attr("text-anchor", "middle")
-          .attr("x", function (d, i) {
-            return i * (graphWidth - margin.right) / 4 + (graphWidth - margin.right) / 10;
-          }).attr("y", selectButtonHeight / 1.4 + 5)
-          .style("fill", "white")
-          .style("pointer-events", "none")
-          .text(function (d) {
-            return d;
-          });
+        function zoomed() {
+          if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") {
+            return; // ignore zoom-by-brush
+          }
+          var t = d3.event.transform;
+          x.domain(t.rescaleX(x2).domain()); //resets x domain to match little graph
+          for (var setnum = 0; setnum < dataSelect.length; setnum++) {
+            var focus = d3.select('.focus' + setnum);
+            focus.select(".area").attr("d", area);
+            focus.select(".axis--x").call(xAxis);
+          }
+          context.select(".brush").call(brush.move, x.range().map(t.invertX, t));
+        }
+
+        function type(d) {
+          d = parseDate(d);
+          return d;
+        }
       } catch (err) {
         console.log(err);
         break;

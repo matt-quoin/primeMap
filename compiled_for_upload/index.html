@@ -2,7 +2,12 @@
 <div id="sliderdiv">
   <input id="year-slider" type="range" min="1975" max="2013" step="0.01" value="1975"/>
 </div>
+<div id="slider-year"></div>
 <div id="side-bar-container"></div>
+<div id="graph-slideout-button">
+  <p>More Details</p>
+  <div class="arrow bounce"></div>
+</div>
 <div id="graph-container"></div>
 <script>
   var initialize = true;
@@ -23,6 +28,11 @@
   d3.select("#year-slider").on("mouseup", function(){ //updates actual map
     var value = Math.round(this.value);
     csvParse(dataServerPath, updateMap, value, 0);
+  });
+
+  document.getElementById("graph-slideout-button").addEventListener("click", function() {
+    document.getElementById("graph-slideout-button").classList.toggle("expand-graph");
+    document.getElementById("graph-container").classList.toggle("expand-graph");
   });
 
   $(window).resize(function() {
