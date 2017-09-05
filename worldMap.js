@@ -364,7 +364,6 @@ function updateMap(countryData, year) {
     var svg = d3.select(".panelSVG");
 
     for (var y1 = 0; y1 < parsedData.length; y1++) {
-
       var lowerString = parsedData[y1].key;
       var countryName = getKey(countryID, 0, true);
 
@@ -382,6 +381,7 @@ function updateMap(countryData, year) {
           var xAxis = d3.axisBottom(x);
           var xAxis2 = d3.axisBottom(x2);
           var yAxis = d3.axisLeft(y);
+          console.log('x: ', x);
           var brush = d3.brushX()
             .extent([[0, 0], [width, height2]])
             .on("brush end", brushed);
@@ -390,12 +390,7 @@ function updateMap(countryData, year) {
             .translateExtent([[0, 0], [width, height]])
             .extent([[0, 0], [width, height]])
             .on("zoom", zoomed);
-          var area = d3.area() //main graph area
-            .curve(d3.curveMonotoneX).x(function (d) {
-              return x(parseDate(d[0]));
-            }).y0(height).y1(function (d) {
-              return y(d[1]);
-            });
+          var area = [];
           var area2 = d3.area() //mini graph area
             .curve(d3.curveMonotoneX).x(function (d) {
               return x2(parseDate(d[0]));
@@ -404,7 +399,22 @@ function updateMap(countryData, year) {
             });
 
           for (var setnum = 0; setnum < dataSelect.length; setnum++) {
+            console.log('d3.area()', d3.area());
+            area[setnum] = d3.area() //main graph area
+              .curve(d3.curveMonotoneX).x(function (d) {
+                console.log('area x: ', d, Array.isArray(d));
+                if(Array.isArray(d)) {
+                  return x(parseDate(d[0]));
+                }
+              }).y0(height).y1(function (d) {
+                if(Array.isArray(d)) {
+                  return y(d[1]);
+                }
+              });
+
             var numbersOnly = Object.values(parsedData[y1][dataSelect[setnum]]['values'][0]);
+            console.log('parsedData: ', parsedData[y1][dataSelect[setnum]]['values'][0]);
+            console.log('parsedData: ', parsedData[y1][dataSelect[setnum]]['values'][0]);
             var keys = Object.keys(parsedData[y1][dataSelect[setnum]]['values'][0]);
             numbersOnly = numbersOnly.slice(0, numbersOnly.length - 2); //get's rid of country tag
             keys = keys.slice(0, keys.length - 2); //years for axis labels
@@ -435,7 +445,7 @@ function updateMap(countryData, year) {
             focus.append("path")
               .datum(dataStoreFinal)
               .attr("class", "area")
-              .attr("d", area)
+              .attr("d", area[setnum])
               .attr("transform", "translate(" + graphLeftMargin + "," + 0 + ")");
 
             focus.append("g")
@@ -492,36 +502,38 @@ function updateMap(countryData, year) {
             .style("font-size", "2vw")
             .style("font-family", "Helvetica Neue")
             .text(getKey(prevCountry.id, 0, true));
-        }
 
-        function brushed() {
-          if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") {
-            return; // ignore brush-by-zoom
+
+          function brushed() {
+            if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") {
+              return; // ignore brush-by-zoom
+            }
+
+            var s = d3.event.selection || x2.range();
+            x.domain(s.map(x2.invert, x2));
+            for (var setnum = 0; setnum < dataSelect.length; setnum++) {
+              var focus = d3.select('.focus' + setnum);
+              console.log('focus: ', focus);
+              console.log('area setnum: ', area[setnum]);
+              //focus.select(".area").attr("d", area[setnum]);
+              focus.select(".axis--x").call(xAxis);
+            }
+            svg.select(".zoom").call(zoom.transform, d3.zoomIdentity.scale(width / (s[1] - s[0])).translate(-s[0], 0));
           }
 
-          var s = d3.event.selection || x2.range();
-          x.domain(s.map(x2.invert, x2));
-          for (var setnum = 0; setnum < dataSelect.length; setnum++) {
-            var focus = d3.select('.focus' + setnum);
-            console.log('focus ', area);
-            //focus.select(".area").attr("d", area);
-            focus.select(".axis--x").call(xAxis);
+          function zoomed() {
+            if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") {
+              return; // ignore zoom-by-brush
+            }
+            var t = d3.event.transform;
+            x.domain(t.rescaleX(x2).domain()); //resets x domain to match little graph
+            for (var setnum = 0; setnum < dataSelect.length; setnum++) {
+              var focus = d3.select('.focus' + setnum);
+              focus.select(".area").attr("d", area[setnum]);
+              focus.select(".axis--x").call(xAxis);
+            }
+            context.select(".brush").call(brush.move, x.range().map(t.invertX, t));
           }
-          svg.select(".zoom").call(zoom.transform, d3.zoomIdentity.scale(width / (s[1] - s[0])).translate(-s[0], 0));
-        }
-
-        function zoomed() {
-          if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") {
-            return; // ignore zoom-by-brush
-          }
-          var t = d3.event.transform;
-          x.domain(t.rescaleX(x2).domain()); //resets x domain to match little graph
-          for (var setnum = 0; setnum < dataSelect.length; setnum++) {
-            var focus = d3.select('.focus' + setnum);
-            focus.select(".area").attr("d", area);
-            focus.select(".axis--x").call(xAxis);
-          }
-          context.select(".brush").call(brush.move, x.range().map(t.invertX, t));
         }
 
         function type(d) {
