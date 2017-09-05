@@ -20,7 +20,12 @@ var mainScale = d3.scaleLog()
   .domain([1, maxRefugees])
   .range([1, 10]);
 var colorScaleLength = 10;
-var colorScale = d3.scaleLinear()
+var colorScale = d3.scaleLog()
+  .domain([1, maxRefugees])
+  .interpolate(d3.interpolateHcl)
+  .range([d3.rgb("#007AFF"), d3.rgb('#FFF500')]);
+
+var colorScaleLinear = d3.scaleLinear()
   .domain([1, maxRefugees])
   .interpolate(d3.interpolateHcl)
   .range([d3.rgb("#007AFF"), d3.rgb('#FFF500')]);
@@ -53,7 +58,6 @@ function reDraw() {
       return "focus" + i;
     })
     .attr("transform", function (d, i) {
-      console.log('the I: ', i, d);
       var offset = 40 * i + 20;
       return "translate(" + margin.left + "," + offset + ")";
     });
@@ -174,57 +178,75 @@ function buildMap(dataServerPath, initialize) {
 
           return d.id;
         });
-
-        addMapLegend();
         initialize();
     });
   });
 }
 
-function addMapLegend() {
+function addMapLegend(refugees) {
+
   //add color legend
+  maxRefugees = refugees;
+  mainScale = d3.scaleLog()
+    .base(10)
+    .domain([1, maxRefugees])
+    .range([1, 10]);
+  colorScale = d3.scaleLog()
+    .domain([1, maxRefugees])
+    .interpolate(d3.interpolateHcl)
+    .range([d3.rgb("#007AFF"), d3.rgb('#FFF500')]);
+  colorScaleLinear = d3.scaleLinear()
+    .domain([1, maxRefugees])
+    .interpolate(d3.interpolateHcl)
+    .range([d3.rgb("#007AFF"), d3.rgb('#FFF500')]);
+
   var svg = d3.select(".mapSVG");
   var colorInterval = maxRefugees / colorScaleLength;
+  var offsetHeights = 0
 
   for (var i = 0; i < colorScaleLength; i++) {
+    if (i != 0) {
+      offsetHeights += 3 + ((i - 1) * 2);
+    }
+
     svg.append('rect')
-      .attr("class", "colorLegend")
+      .attr("class", "colorLegend legend")
       .attr("x", 20)
-      .attr("y", parseInt(svg.style("height")) - (i * 5) - 20)
-      .attr("height", 5)
+      .attr("y", parseInt(svg.style("height")) - offsetHeights - 20)
+      .attr("height", 3 + (i * 2))
       .attr("width", 10)
-      .style("fill", colorScale(i * colorInterval));
+      .style("fill", colorScaleLinear(i * colorInterval));
   }
 
   svg.append('text')
-    .attr("class", "colorLegendTitle")
+    .attr("class", "colorLegendTitle legend")
     .attr("x", 20)
-    .attr("y", parseInt(svg.style("height")) - (colorScaleLength * 5) - 24)
+    .attr("y", parseInt(svg.style("height")) - offsetHeights - 30)
     .style("pointer-events", "none")
     .text("Refugees");
   svg.append('text')
-    .attr("class", "colorLegendUnits")
-    .attr("x", 35)
-    .attr("y", parseInt(svg.style("height")) - (colorScaleLength * 5) - 12)
+    .attr("class", "colorLegendUnits legend")
+    .attr("x", 37)
+    .attr("y", parseInt(svg.style("height")) - offsetHeights - 18)
     .style("pointer-events", "none")
     .text(maxRefugees);
   svg.append('text')
-    .attr("class", "colorLegendUnits")
-    .attr("x", 35)
-    .attr("y", parseInt(svg.style("height")) - 12)
+    .attr("class", "colorLegendUnits legend")
+    .attr("x", 37)
+    .attr("y", parseInt(svg.style("height")) - 14)
     .style("pointer-events", "none")
     .text("1");
   svg.append('rect')
-    .attr("class", "colorLegend")
+    .attr("class", "colorLegend legend")
     .attr("x", 20)
-    .attr("y", parseInt(svg.style("height")) - (colorScaleLength * 5) - 15)
+    .attr("y", parseInt(svg.style("height")) - offsetHeights - 21)
     .attr("height", 1)
     .attr("width", 14)
     .style("fill", "black");
   svg.append('rect')
-    .attr("class", "colorLegend")
+    .attr("class", "colorLegend legend")
     .attr("x", 20)
-    .attr("y", parseInt(svg.style("height")) - 15)
+    .attr("y", parseInt(svg.style("height")) - 17)
     .attr("height", 1)
     .attr("width", 14)
     .style("fill", "black");
@@ -279,8 +301,23 @@ function updateMap(countryData, year) {
     countries.selectAll("path")
       .on("mouseover", null)
       .on("mouseout", null);
-    addMapLegend();
+
+
+    svg.selectAll(".legend").remove();
+    addMapLegend(maxRefugees);
   }
+
+  //get highest amount of refugees for the year
+  var refugeeAmounts = [];
+
+  for (var key in dataSet[0]) {
+    delete dataSet[0][key]['code'];
+    delete dataSet[0][key]['name'];
+    Array.prototype.push.apply(refugeeAmounts, Object.values(dataSet[0][key]));
+  }
+
+  svg.selectAll(".legend").remove();
+  addMapLegend(Math.max.apply(null, refugeeAmounts));
 
   //handles country click
   countries.selectAll("path").on("click", function (d) {
@@ -381,7 +418,6 @@ function updateMap(countryData, year) {
           var xAxis = d3.axisBottom(x);
           var xAxis2 = d3.axisBottom(x2);
           var yAxis = d3.axisLeft(y);
-          console.log('x: ', x);
           var brush = d3.brushX()
             .extent([[0, 0], [width, height2]])
             .on("brush end", brushed);
@@ -399,10 +435,8 @@ function updateMap(countryData, year) {
             });
 
           for (var setnum = 0; setnum < dataSelect.length; setnum++) {
-            console.log('d3.area()', d3.area());
             area[setnum] = d3.area() //main graph area
               .curve(d3.curveMonotoneX).x(function (d) {
-                console.log('area x: ', d, Array.isArray(d));
                 if(Array.isArray(d)) {
                   return x(parseDate(d[0]));
                 }
@@ -413,8 +447,6 @@ function updateMap(countryData, year) {
               });
 
             var numbersOnly = Object.values(parsedData[y1][dataSelect[setnum]]['values'][0]);
-            console.log('parsedData: ', parsedData[y1][dataSelect[setnum]]['values'][0]);
-            console.log('parsedData: ', parsedData[y1][dataSelect[setnum]]['values'][0]);
             var keys = Object.keys(parsedData[y1][dataSelect[setnum]]['values'][0]);
             numbersOnly = numbersOnly.slice(0, numbersOnly.length - 2); //get's rid of country tag
             keys = keys.slice(0, keys.length - 2); //years for axis labels
@@ -513,8 +545,6 @@ function updateMap(countryData, year) {
             x.domain(s.map(x2.invert, x2));
             for (var setnum = 0; setnum < dataSelect.length; setnum++) {
               var focus = d3.select('.focus' + setnum);
-              console.log('focus: ', focus);
-              console.log('area setnum: ', area[setnum]);
               //focus.select(".area").attr("d", area[setnum]);
               focus.select(".axis--x").call(xAxis);
             }
@@ -552,11 +582,17 @@ function updateMap(countryData, year) {
     countryCounter = 0; //reset
 
     var selectedCountry = dataSet[getKey(countryID, 0, true)]; //gets country object that contains the data
-
     selectedCenter = path.centroid(selectedCountryObject);
 
+    //add tooltip to selected country
     countries.selectAll("path").filter(function (d) {
-      var currentCountryRefugees = typeof dataSet[0][getKey(countryID, 0, true)] == undefined ? undefined : dataSet[0][getKey(countryID, 0, true)][getKey(d.id, 0, true)];
+      return d.id == countryID;
+    }).each(function (d, i) {
+      addTooltip(this, d, selectedCountry, getKey(d.id, 0, true), true);
+    });
+
+    countries.selectAll("path").filter(function (d) {
+      var currentCountryRefugees = typeof dataSet[0][getKey(countryID, 0, true)] == "undefined" ? undefined : dataSet[0][getKey(countryID, 0, true)][getKey(d.id, 0, true)];
 
       if (typeof currentCountryRefugees == "undefined" || currentCountryRefugees == 0) {
         //filters out countries that no refugees from seectedCountry have gone to
@@ -610,11 +646,21 @@ function updateMap(countryData, year) {
         .attr("r", 1)
         .style("fill", colorScale(temp[circleName]));
 
-      d3.select(this).on("mouseover", function (d) {
-        var currentSelectedCountry = d3.select(this);
+      //add tooltip to refugee countries
+      addTooltip(this, d, temp, circleName, false);
+    });
+
+    function addTooltip(that, d, temp, name, origin) {
+      d3.select(that).on("mouseover", function (d) {
+        var currentSelectedCountry = d3.select(that);
         var currentSelectedCenter = path.centroid(d);
-        var coor = d3.mouse(this);
-        var setText = Math.round(temp[circleName]) + " - " + circleName;
+        var coor = d3.mouse(that);
+        var setText = name;
+
+        if (origin == false) {
+          setText = setText.replace (/^/, Math.round(temp[name]) + " - ");
+        }
+
         var countryTooltip = svg.append('rect')
           .attr("class", "countryTooltip")
           .attr("x", currentSelectedCenter[0])
@@ -651,10 +697,10 @@ function updateMap(countryData, year) {
           tooltipText.attr("y", 26)
         }
       }).on("mouseout", function (d) {
-        var currentSelectedCountry = d3.select(this);
+        var currentSelectedCountry = d3.select(that);
         svg.selectAll('.countryTooltip').remove();
         svg.selectAll('.countryTooltipText').remove();
       });
-    });
+    }
   }
 }
