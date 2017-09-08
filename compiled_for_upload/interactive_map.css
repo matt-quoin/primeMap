@@ -205,7 +205,7 @@ html, body {
   position: fixed;
   bottom: 0px;
   left: calc(50% - 35px);
-  z-index: 2;
+  z-index: 3;
   -webkit-transition: bottom 1s; /* Safari */
   transition: bottom 1s;
   cursor: pointer;
@@ -238,7 +238,7 @@ html, body {
   position: absolute;
   left: 0px;
   bottom: -90vh;
-  z-index: 2;
+  z-index: 3;
   background-color: #eeeeee;
   -webkit-transition: bottom 1s; /* Safari */
   transition: bottom 1s;
@@ -265,4 +265,40 @@ html, body {
 
 .focus {
   left: .05 vw;
+}
+
+g.focus0 path.area {
+  fill: rgba(127,201,174,0.5);
+}
+
+g.focus1 path.area {
+  fill: rgba(127,183,201,0.5);
+}
+
+g.focus2 path.area {
+  fill: rgba(127,130,201,0.5);
+}
+
+#close-bg {
+  opacity: 1;
+  visibility: visible;
+  position: relative;
+  cursor: pointer;
+  width: 100vw;
+  height: 100vh;
+  z-index: 2;
+  background-color: rgba(0,0,0,0.4);
+  -webkit-transition: visibility 0s, opacity 0.5s; /* Safari */
+  transition: visibility 0s, opacity 0.5s;
+}
+
+#close-bg.hide {
+  visibility: hidden;
+  opacity: 0;
+  -webkit-transition: visibility .5s, opacity 0.5s; /* Safari */
+  transition: visibility .5s, opacity 0.5s;
+}
+
+.mapSVG {
+  z-index: 1;
 }

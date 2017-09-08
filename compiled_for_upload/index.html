@@ -1,9 +1,10 @@
 <div id="map-container"></div>
 <div id="sliderdiv">
-  <input id="year-slider" type="range" min="1975" max="2013" step="0.01" value="1975"/>
+  <input id="year-slider" type="range" min="1975" max="2013" step="0.01" value="2013"/>
 </div>
 <div id="slider-year"></div>
 <div id="side-bar-container"></div>
+<div id="close-bg" class="hide"></div>
 <div id="graph-slideout-button">
   <p>More Details</p>
   <div class="arrow bounce"></div>
@@ -15,8 +16,8 @@
   buildMap(dataServerPath, function() {
     if(initialize){
       initialize = false; //makes countries clickable from the start
-      updateYear(1975);
-      csvParse(dataServerPath, updateMap, 1975, 0);
+      updateYear(2013);
+      csvParse(dataServerPath, updateMap, 2013, 0);
     }
   });
 

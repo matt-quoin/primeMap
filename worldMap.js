@@ -7,13 +7,18 @@ var mapWidth;
 var mapHeight;
 var graphWidth;
 var graphHeight;
+var width;
+var height;
+var height2;
 var margin = { top: 20, right: 5, bottom: 20, left: 15 };
 var marginCountryButton = { top: 2, right: 2, bottom: 2, left: 2 };
+var graphLeftMargin = 20;
 var dataSelect = ["perCapitaFoodSupply.csv", "undernourishment.csv", "poverty.csv"];
 var selectButtonHeight = 20;
 var primeCountries = ["AFGHANISTAN", "ALBANIA", "ALGERIA", "AMERICAN SAMOA", "ANDORRA", "ANGOLA", "ANGUILLA", "ANTIGUA AND BARBUDA", "ARGENTINA", "ARMENIA", "ARUBA", "IA", "AUSTRIA", "AZERBAIJAN", "BAHAMAS", "BAHRAIN", "BANGLADESH", "BARBADOS", "BELARUS", "BELGIUM", "BELIZE", "BENIN", "BERMUDA", "BHUTAN", "BOLIVIA", "BONAIRE", "BOSNIA-HERZEGOVINA", "BOTSWANA", "BOUVET ISLAND", "BRAZIL", "BRUNEI", "BULGARIA", "BURKINA FASO", "BURUNDI", "CAMBODIA", "CAMEROON", "CANADA", "CAPE VERDE", "CAYMAN ISLANDS", "CENTRAL ARICAN REPUBLIC", "CHAD", "CHILE", "CHINA", "CHRISTMAS ISLAND", "COCOS (KEELING) ISLANDS", "COLOMBIA", "COMOROS", "CONGO", "COOK ISLANDS", "COSTA RICA", "CROATIA", "CUBA", "CYPRUS", "CZECH REP.", "DENMARK", "DJIBOUTI", "DOMINICA", "DOMINICAN REPUBLIC", "ECUADOR", "EGYPT", "EL SALVADOR", "EQUATORIAL GUINEA", "ERITREA", "ESTONIA", "ETHIOPIA", "FALKLAND ISLANDS", "FAROE ISLANDS", "FIJI", "FINLAND", "FRANCE", "FRENCH GUIANA", "GABON", "GAMBIA", "GEORGIA", "GERMANY", "GHANA", "GIBRALTAR", "GREECE", "GREENLAND", "GRENADA", "GUATEMALA", "GUINEA", "GUINEA BISSAU", "GUYANA", "HAITI", "HOLY SEE", "HONDURAS", "HONG KONG", "HUNGARY", "ICELAND", "INDIA", "INDONESIA", "IRAN", "IRAQ", "IRELAND", "ISRAEL", "ITALY", "IVORY COAST", "JAMAICA", "JAPAN", "JORDAN", "KAZAKHSTAN", "KENYA", "KIRIBATI", "KOSOVO", "KUWAIT", "KYRGYZSTAN", "LAOS", "LATVIA", "LEBANON", "LESOTHO", "LIBERIA", "LIBYA", "LIECHTENSTEIN", "LITHUANIA", "LUXEMBOURG", "MACAU", "MACEDONIA", "MADAGASCAR", "MALAWI", "MALAYSIA", "MALDIVES", "MALI", "MALTA", "MARSHALL ISLANDS", "MAURITANIA", "MAURITIUS", "MAYOTTE", "MEXICO", "MICRONESIA", "MOLDOVA", "MONACO", "MONGOLIA", "MONTENEGRO", "MONTSERRAT", "MOROCCO", "MOZAMBIQUE", "MYANMAR", "NAMIBIA", "NAURU", "NEPAL", "NETHERLANDS", "NETHERLANDS ANTILLES", "NEW ZEALAND", "NICARAGUA", "NIGER", "NIGERIA", "NIUE", "NORFOLK ISLAND", "NORTH KOREA", "NORTHERN MARIANA ISLANDS", "NORWAY", "OMAN", "PAKISTAN", "PALAU", "PANAMA", "PAPUA NEW GUINEA", "PARAGUAY", "PERU", "PHILIPPINES", "PITCAIRN ISLAND", "POLAND", "POLYNESIA (FRENCH)", "PORTUGAL", "PUERTO RICO", "QATAR", "RNION", "ROMANIA", "RUSSIA", "RWANDA", "SAINT HELENA", "SAINT KITTS AND NEVIS", "SAINT LUCIA", "SAINT PIERRE AND MIQUELON", "SAINT VINCENT AND GRENADINES", "SAMOA", "SAN MARINO", "SAO TOME AND PRINCIPE", "SAUDI ARABIA", "SENEGAL", "SERBIA", "SEYCHELLES", "SIERRA LEONE", "SINGAPORE", "SINT MAARTEN", "SLOVAKIA", "SLOVENIA", "SOLOMON ISLANDS", "SOMALIA", "SOUTH AFRICA", "SOUTH GEORGIA AND SOUTH SANDWICH ISLANDS", "SOUTH KOREA", "SOUTH SUDAN", "SOUTH SUDAN", "SPAIN", "SRI LANKA", "SUDAN", "SURINAME", "SVALBARD AND JAN MAYEN ISLANDS", "SWAZILAND", "SWEDEN", "SWITZERLAND", "SYRIA", "TAIWAN", "TAJIKISTAN", "TANZANIA", "THAILAND", "TIMOR-LESTE (EAST TIMOR)", "TOGO", "TOKELAU", "TONGA", "TRINIDAD AND TOBAGO", "TUNISIA", "TURKEY", "TURKMENISTAN", "TURKS AND CAICOS ISLANDS", "TUVALU", "UGANDA", "UKRAINE", "UNITED ARAB EMIRATES", "UNITED KINGDOM", "UNITED STATES", "URUGUAY", "UZBEKISTAN", "VANUATU", "VENEZUELA", "VIETNAM", "VIRGIN ISLANDS", "WALLIS AND FUTUNA ISLANDS", "YEMEN", "ZAMBIA", "ZIMBABWE"];
 var primeCountriesLower = ["Angola", "Indonesia", "Kenya", "Nigeria", "Nepal", "Jordan", "South Sudan", "Sudan", "Sierra Leone"];
 var prevCountry;
+var parseDate = d3.timeParse("%Y");
 var maxRefugees = 400000;
 var mainScale = d3.scaleLog()
   .base(10)
@@ -23,12 +28,12 @@ var colorScaleLength = 10;
 var colorScale = d3.scaleLog()
   .domain([1, maxRefugees])
   .interpolate(d3.interpolateHcl)
-  .range([d3.rgb("#007AFF"), d3.rgb('#FFF500')]);
+  .range([d3.rgb("#007AFF"), d3.rgb('#FF0000')]);
 
 var colorScaleLinear = d3.scaleLinear()
   .domain([1, maxRefugees])
   .interpolate(d3.interpolateHcl)
-  .range([d3.rgb("#007AFF"), d3.rgb('#FFF500')]);
+  .range([d3.rgb("#007AFF"), d3.rgb('#FF0000')]);
 
 function clear() {
   d3.select("body")
@@ -110,6 +115,9 @@ function buildMap(dataServerPath, initialize) {
     .text("");
   graphWidth = parseInt(topPanel.style("width")); //gets number valus for svg widths and heights
   graphHeight = parseInt(topPanel.style("height"));
+  width = graphWidth * .9;
+  height = graphHeight * .16;
+  height2 = graphHeight * .04;
   mapWidth = parseInt(svg.style("width"));
   mapHeight = parseInt(svg.style("height"));
 
@@ -194,11 +202,11 @@ function addMapLegend(refugees) {
   colorScale = d3.scaleLog()
     .domain([1, maxRefugees])
     .interpolate(d3.interpolateHcl)
-    .range([d3.rgb("#007AFF"), d3.rgb('#FFF500')]);
+    .range([d3.rgb("#007AFF"), d3.rgb('#FF0000')]);
   colorScaleLinear = d3.scaleLinear()
     .domain([1, maxRefugees])
     .interpolate(d3.interpolateHcl)
-    .range([d3.rgb("#007AFF"), d3.rgb('#FFF500')]);
+    .range([d3.rgb("#007AFF"), d3.rgb('#FF0000')]);
 
   var svg = d3.select(".mapSVG");
   var colorInterval = maxRefugees / colorScaleLength;
@@ -327,17 +335,16 @@ function updateMap(countryData, year) {
   //handles country click
   countries.selectAll("path").on("click", function (d) {
     countries.selectAll("path").style("fill", "#bcbcbc");
-    d3.select(this).style("fill", "red");
+    d3.select(this).style("fill", "#FFD800");
     clearAll();
     selectedCountryObject = d;
     prevCountry = d;
     drawLines(d.id);
     moveCircles(); //animation
 
-    if (primeCountriesLower.indexOf(getKey(d.id, 0, true)) > -1) {
-      //only draws graph for primero countries
-      drawBars(d.id, parsed);
-    }
+    d3.select(".panelSVG").remove();
+
+    drawBars(d.id, parsed);
   });
 
   //handles button click
@@ -351,16 +358,14 @@ function updateMap(countryData, year) {
     countries.selectAll("path").each(function (d, i) {
       if (d.id == countCode) {
         countries.selectAll("path").style("fill", "#bcbcbc");
-        d3.select(this).style("fill", "red");
+        d3.select(this).style("fill", "#FFD800");
         clearAll();
         selectedCountryObject = d;
         prevCountry = d;
         drawLines(d.id);
         moveCircles();
 
-        if (primeCountriesLower.indexOf(getKey(d.id, 0, true)) > -1) {
-          drawBars(d.id, parsed);
-        }
+        drawBars(d.id, parsed);
       }
     });
   });
@@ -391,7 +396,6 @@ function updateMap(countryData, year) {
 
   function drawBars(countryID, parsedData) {
     //draws bottom of page graph
-    var graphLeftMargin = 20;
     var nameKey = [{
       "undernourishment.csv": "Undernourishment",
       "perCapitaFoodSupply.csv": "Food Supply",
@@ -412,32 +416,28 @@ function updateMap(countryData, year) {
       try {
         if (typeof lowerString !== 'undefined' && lowerString.toLowerCase() == countryName.toLowerCase()) {
           //if the country path selected matches the country name in the data
-          var width = graphWidth * .9;
-          var height = graphHeight * .16;
-          var height2 = graphHeight * .04;
-          var parseDate = d3.timeParse("%Y");
-          var x = d3.scaleTime().range([0, width]);
-          var x2 = d3.scaleTime().range([0, width]);
-          var y = d3.scaleLinear().range([height, 0]);
+
+          //get initial date range all graphs
+          var totalDateRange = [];
+
+          for (var setnum = 0; setnum < dataSelect.length; setnum++) {
+            var dates = parsedData[y1][dataSelect[setnum]];
+            dates = Object.keys(dates['values'][0]);
+            dates = dates.slice(0, dates.length - 2).map(Number);
+            Array.prototype.push.apply(totalDateRange, dates);
+          }
+
+          var dateRange = d3.extent(totalDateRange);
+          var x = d3.scaleTime().range([0, width])
+            .domain(dateRange);
+          var x2 = d3.scaleTime().range([0, width])
+            .domain(dateRange);
           var y2 = d3.scaleLinear().range([height2, 0]);
           var xAxis = d3.axisBottom(x);
           var xAxis2 = d3.axisBottom(x2);
-          var yAxis = d3.axisLeft(y);
           var brush = d3.brushX()
             .extent([[0, 0], [width, height2]])
             .on("brush end", brushed);
-          var zoom = d3.zoom()
-            .scaleExtent([1, Infinity])
-            .translateExtent([[0, 0], [width, height]])
-            .extent([[0, 0], [width, height]])
-            .on("zoom", zoomed);
-          var area2 = d3.area() //mini graph area
-            .curve(d3.curveMonotoneX).x(function (d) {
-              return x2(parseDate(d[0]));
-            }).y0(height2).y1(function (d) {
-              return y2(d[1]);
-            });
-
           var charts = [];
 
           for (var setnum = 0; setnum < dataSelect.length; setnum++) {
@@ -445,19 +445,11 @@ function updateMap(countryData, year) {
               data: parsedData[y1][dataSelect[setnum]],
               id: setnum,
               name: nameKey[0][dataSelect[setnum]],
-              width: width,
-              height: height,
               svg: svg,
-              graphHeight: graphHeight,
-              graphWidth: graphWidth,
-              graphLeftMargin: graphLeftMargin,
               x: x,
-              y: y,
               x2: x2,
-              y2: y2,
               xAxis: xAxis,
-              yAxis: yAxis,
-              parseDate: parseDate
+              dateRange: dateRange
             }));
           };
 
@@ -470,18 +462,15 @@ function updateMap(countryData, year) {
             .attr("class", "axis axis--x")
             .attr("transform", "translate(0," + height2 + ")")
             .call(xAxis2);
-
           context.append("g")
             .attr("class", "brush")
             .call(brush)
             .call(brush.move, x.range());
-
           context.selectAll('.handle')
             .style("cursor", "ew-resize")
             .style("stroke", "#b2b1b6")
             .style("stroke-width", 1)
             .style("fill", "#ebe7e8");
-
           svg.append('text')
             .attr("class", "graphContainerTitleText")
             .style("text-anchor", "middle")
@@ -491,34 +480,17 @@ function updateMap(countryData, year) {
             .style("font-family", "Helvetica Neue")
             .text(getKey(prevCountry.id, 0, true));
 
-
           function brushed() {
             if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") {
               return; // ignore brush-by-zoom
             }
 
             var s = d3.event.selection || x2.range();
-            x.domain(s.map(x2.invert, x2));
+            var b = s.map(x2.invert, x2);
 
-            var b = brush.extent();
             for (var setnum = 0; setnum < dataSelect.length; setnum++) {
               charts[setnum].showOnly(b);
             }
-            svg.select(".zoom").call(zoom.transform, d3.zoomIdentity.scale(width / (s[1] - s[0])).translate(-s[0], 0));
-          }
-
-          function zoomed() {
-            if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") {
-              return; // ignore zoom-by-brush
-            }
-            var t = d3.event.transform;
-            x.domain(t.rescaleX(x2).domain()); //resets x domain to match little graph
-            for (var setnum = 0; setnum < dataSelect.length; setnum++) {
-              var focus = d3.select('.focus' + setnum);
-              focus.select(".area").attr("d", area[setnum]);
-              focus.select(".axis--x").call(xAxis);
-            }
-            context.select(".brush").call(brush.move, x.range().map(t.invertX, t));
           }
         }
 
@@ -535,34 +507,22 @@ function updateMap(countryData, year) {
 
   function Chart(options) {
     this.chartData = options.data;
-    this.width = options.width;
-    this.height = options.height;
     this.svg = options.svg;
     this.id = options.id;
     this.name = options.name;
-    this.graphHeight = options.graphHeight;
-    this.graphWidth = options.graphWidth;
-    this.graphLeftMargin = options.graphLeftMargin;
     this.x = options.x;
-    this.y = options.y;
     this.x2 = options.x2;
-    this.y2 = options.y2;
     this.xAxis = options.xAxis;
-    this.yAxis = options.yAxis;
-    this.parseDate = options.parseDate;
+    this.dateRange = options.dateRange;
+    this.y = d3.scaleLinear().range([height, 0]);
+    this.yAxis = d3.axisLeft(this.y);
     var that = this;
-
-    this.area = d3.area() //main graph area
+    this.area = d3.area()
       .curve(d3.curveMonotoneX).x(function (d) {
-        if(Array.isArray(d)) {
-          return that.x(that.parseDate(d[0]));
-        }
-      }).y0(that.height).y1(function (d) {
-        if(Array.isArray(d)) {
-          return that.y(d[1]);
-        }
+        return that.x(parseDate(d[0]));
+      }).y0(height).y1(function (d) {
+        return that.y(d[1]);
       });
-
     this.numbersOnly = Object.values(this.chartData['values'][0]);
     this.keys = Object.keys(this.chartData['values'][0]);
     this.numbersOnly = this.numbersOnly.slice(0, this.numbersOnly.length - 2); //get's rid of country tag
@@ -575,42 +535,41 @@ function updateMap(countryData, year) {
 
     this.svg.select("#clip")
       .append("rect")
-      .attr("width", this.width)
-      .attr("height", this.height);
+      .attr("width", width)
+      .attr("height", height);
 
-    this.graphOffset = ((this.graphHeight * .2) + (this.graphHeight * .08)) * this.id + (this.graphHeight * .12);
+    this.graphOffset = ((graphHeight * .2) + (graphHeight * .08)) * this.id + (graphHeight * .12);
     this.chartContainer = d3.select('.focus' + this.id)
-      .attr("transform", "translate(" + this.graphWidth * .04 + "," + this.graphOffset + ")");
+      .attr("transform", "translate(" + graphWidth * .04 + "," + this.graphOffset + ")");
 
-    this.x.domain(d3.extent(this.keys, function (d) {
-      return that.parseDate(d);
+    this.x.domain(d3.extent(this.dateRange, function (d) {
+      return parseDate(d);
     }));
     this.y.domain(d3.extent(this.numbersOnly, function (d) {
       return +d;
     }));
     this.x2.domain(this.x.domain());
-    this.y2.domain(this.y.domain());
 
     this.chartContainer.append("path")
       .datum(this.dataStoreFinal)
       .attr("class", "area")
       .attr("d", this.area)
-      .attr("transform", "translate(" + this.graphLeftMargin + "," + 0 + ")");
+      .attr("transform", "translate(" + graphLeftMargin + "," + 0 + ")");
 
     this.chartContainer.append("g")
       .attr("class", "axis axis--x")
-      .attr("transform", "translate(" + this.graphLeftMargin + "," + this.height + ")")
+      .attr("transform", "translate(" + graphLeftMargin + "," + height + ")")
       .call(this.xAxis);
 
     this.chartContainer.append("g")
       .attr("class", "axis axis--y")
-      .attr("transform", "translate(" + this.graphLeftMargin + "," + 0 + ")")
-      .style("font-size", this.graphHeight * .015)
+      .attr("transform", "translate(" + graphLeftMargin + "," + 0 + ")")
+      .style("font-size", graphHeight * .015)
       .call(this.yAxis);
 
     this.chartContainer.append('text')
       .attr("class", "graphTitleText")
-      .attr("x", this.graphWidth * .03)
+      .attr("x", graphWidth * .03)
       .attr("y", -6)
       .style("font-size", "1.8vw")
       .style("font-family", "Helvetica Neue")
@@ -618,23 +577,9 @@ function updateMap(countryData, year) {
   }
 
   Chart.prototype.showOnly = function(b){
-    console.log('b: ', b);
-    // this.x.domain(b);
-    // this.chartContainer.select("path").data([this.chartData]).attr("d", this.area);
-    // this.chartContainer.select(".axis--x").call(this.xAxis);
-
-    // this.chartContainer.select(".area").attr("d", this.area);
-    // this.chartContainer.select(".axis--x").call(this.xAxis);
-    // this.chartContainer.select("path").data([this.chartData]).attr("d", this.area);
-    // this.chartContainer.select(".x.axis.top").call(this.xAxisTop);
-    // this.chartContainer.select(".x.axis.bottom").call(this.xAxisBottom);
-
-
-
-              // var focus = Chart;
-              // //focus.select(".area").attr("d", area[setnum]);
-              // focus.select(".axis--x").call(xAxis);
-               /* this will return a date range to pass into the chart object */
+    this.x.domain(b);
+    this.chartContainer.select("path").datum(this.dataStoreFinal).attr("d", this.area);
+    this.chartContainer.select(".axis--x").call(this.xAxis);
   }
 
   function drawLines(countryID) {
