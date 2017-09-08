@@ -13,8 +13,8 @@
 <script>
   (function() {
     var initialize = true;
-    var dataServerPath = "{{media.get_static_path}}";
-    var actualMediaFileNames = "{{all_media_files}}";
+    var dataServerPath = "{{media_static_path}}";
+    var actualMediaFileNames = '{{all_media_files|safe}}';
 
     actualMediaFileNames = JSON.parse(actualMediaFileNames);
     var rawMediaFileNames = ["internetUsers.csv", "perCapitaFoodSupply.csv", "undernourishment.csv", "poverty.csv", "gdpPerCap.csv"];
