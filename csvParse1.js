@@ -22,16 +22,17 @@ function sort(data, fileName) {
 }
 
 //loads all data file, sorts
-function coagData(dataServerPath, files, dataArray, startAt, callback) {
-  d3.csv(dataServerPath + files[startAt], function (data5) {
-    dataArray.push(sort(data5, files[startAt]));
+function coagData(dataServerPath, files, map, dataArray, startAt, callback) {
+  d3.csv(dataServerPath + map[files[startAt]], function (data5) {
+    console.log()
+    dataArray.push(sort(data5, map[files[startAt]]));
 
     if (startAt == files.length - 1) {
       //if last file has been loaded
       callback(join(dataArray)); //goes back up through recursion and joins each data array to main array
     } else {
       startAt++;
-      coagData(dataServerPath, files, dataArray, startAt, callback); //recurses until last file is loaded
+      coagData(dataServerPath, files, map, dataArray, startAt, callback); //recurses until last file is loaded
     }
   });
 }

@@ -27,11 +27,42 @@
       (function() {
         var initialize = true;
         var dataServerPath = "test/";
-        buildMap(dataServerPath, function() {
+        var actualMediaFileNames = '["gdpPerCap.csv", "internetUsers.csv", "perCapitaFoodSupply.csv", "poverty.csv", "refugeeData2013.csv", "undernourishment.csv", "interactive_map.css"]';
+
+        actualMediaFileNames = JSON.parse(actualMediaFileNames);
+        console.log('actualMediaFileNames', actualMediaFileNames, typeof actualMediaFileNames);
+        var rawMediaFileNames = ["internetUsers.csv", "perCapitaFoodSupply.csv", "undernourishment.csv", "poverty.csv", "gdpPerCap.csv"];
+        var rawMapFile = "refugeeData2013.csv";
+        var mediaFileMap = {};
+        var actualMapFile;
+        var index, value, result;
+        for (var i = 0; i < rawMediaFileNames.length; i += 1) {
+          var originialFileName = rawMediaFileNames[i].slice(0, -4)
+          for (var key in actualMediaFileNames) {
+            var value = actualMediaFileNames[key];
+
+            if (value.includes(originialFileName)) {
+              mediaFileMap[rawMediaFileNames[i]] = value;
+              break;
+            }
+            actualMapFile
+          }
+        }
+
+        for (var key in actualMediaFileNames) {
+          var value = actualMediaFileNames[key];
+
+          if (value.includes("refugeeData2013")) {
+            actualMapFile = value;
+            break;
+          }
+        }
+
+        buildMap(dataServerPath, mediaFileMap, function() {
           if(initialize){
             initialize = false; //makes countries clickable from the start
             updateYear(2013);
-            csvParse(dataServerPath, updateMap, 2013, 0);
+            csvParse(dataServerPath, updateMap, actualMapFile, 2013, 0);
           }
         });
 
@@ -42,7 +73,7 @@
 
         d3.select("#year-slider").on("mouseup", function(){ //updates actual map
           var value = Math.round(this.value);
-          csvParse(dataServerPath, updateMap, value, 0);
+          csvParse(dataServerPath, updateMap, actualMapFile, value, 0);
         });
 
         document.getElementById("graph-slideout-button").addEventListener("click", function() {

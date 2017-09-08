@@ -1,8 +1,8 @@
 "use strict";
 
-function csvParse(dataServerPath, callback, year2) {
+function csvParse(dataServerPath, callback, actualMapFile, year2) {
   var primeroCountries = getKey();
-  d3.csv(dataServerPath + "refugeeData2013.csv", function (data) {
+  d3.csv(dataServerPath + actualMapFile, function (data) {
     var sortedData = [];
     var years = {};
     var yearPointer = data.length - 1;

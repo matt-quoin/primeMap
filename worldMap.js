@@ -76,7 +76,7 @@ function updateYear(yearChanged) {
   d3.select('.yearText').text(yearChanged);
 }
 
-function buildMap(dataServerPath, initialize) {
+function buildMap(dataServerPath, mediaFileMap,  initialize) {
   var data = [];
   var countCode;
   var divElement = d3.select("#map-container");
@@ -163,7 +163,7 @@ function buildMap(dataServerPath, initialize) {
   svg.append("path") //adds the grid
     .datum(d3.geoGraticule10()).attr("class", "graticule").attr("d", path);
 
-  var collectedData = coagData(dataServerPath, ["internetUsers.csv", "perCapitaFoodSupply.csv", "undernourishment.csv", "poverty.csv", "gdpPerCap.csv"], data, 0, function (dat) {
+  var collectedData = coagData(dataServerPath, ["internetUsers.csv", "perCapitaFoodSupply.csv", "undernourishment.csv", "poverty.csv", "gdpPerCap.csv"], mediaFileMap, data, 0, function (dat) {
     dat.pop(); // removes unecessary country tag
     parsed = dat;
     //draws map
@@ -396,12 +396,17 @@ function updateMap(countryData, year) {
 
   function drawBars(countryID, parsedData) {
     //draws bottom of page graph
-    var nameKey = [{
+    var nameKey = {
       "undernourishment.csv": "Undernourishment",
       "perCapitaFoodSupply.csv": "Food Supply",
       "internetUsers.csv": "Internet Users",
       "poverty.csv": "Poverty"
-    }];
+    };
+    var unitKey = {
+      "undernourishment.csv": "(% of population)",
+      "perCapitaFoodSupply.csv": "(kcal/capita/day)",
+      "poverty.csv": "(% of population)"
+    };
 
     d3.select(".panelSVG").remove();
 
@@ -444,7 +449,8 @@ function updateMap(countryData, year) {
             charts.push(new Chart({
               data: parsedData[y1][dataSelect[setnum]],
               id: setnum,
-              name: nameKey[0][dataSelect[setnum]],
+              name: nameKey[dataSelect[setnum]],
+              units: unitKey[dataSelect[setnum]],
               svg: svg,
               x: x,
               x2: x2,
@@ -510,6 +516,7 @@ function updateMap(countryData, year) {
     this.svg = options.svg;
     this.id = options.id;
     this.name = options.name;
+    this.units = options.units;
     this.x = options.x;
     this.x2 = options.x2;
     this.xAxis = options.xAxis;
@@ -537,11 +544,9 @@ function updateMap(countryData, year) {
       .append("rect")
       .attr("width", width)
       .attr("height", height);
-
     this.graphOffset = ((graphHeight * .2) + (graphHeight * .08)) * this.id + (graphHeight * .12);
     this.chartContainer = d3.select('.focus' + this.id)
       .attr("transform", "translate(" + graphWidth * .04 + "," + this.graphOffset + ")");
-
     this.x.domain(d3.extent(this.dateRange, function (d) {
       return parseDate(d);
     }));
@@ -549,31 +554,35 @@ function updateMap(countryData, year) {
       return +d;
     }));
     this.x2.domain(this.x.domain());
-
     this.chartContainer.append("path")
       .datum(this.dataStoreFinal)
       .attr("class", "area")
       .attr("d", this.area)
       .attr("transform", "translate(" + graphLeftMargin + "," + 0 + ")");
-
     this.chartContainer.append("g")
       .attr("class", "axis axis--x")
       .attr("transform", "translate(" + graphLeftMargin + "," + height + ")")
       .call(this.xAxis);
-
     this.chartContainer.append("g")
       .attr("class", "axis axis--y")
       .attr("transform", "translate(" + graphLeftMargin + "," + 0 + ")")
       .style("font-size", graphHeight * .015)
       .call(this.yAxis);
-
-    this.chartContainer.append('text')
+    var chartTitle = this.chartContainer.append('text')
       .attr("class", "graphTitleText")
       .attr("x", graphWidth * .03)
       .attr("y", -6)
       .style("font-size", "1.8vw")
       .style("font-family", "Helvetica Neue")
       .text(this.name);
+    var bbox = chartTitle.node().getBBox();
+    this.chartContainer.append('text')
+      .attr("class", "graphTitleText")
+      .attr("x", graphWidth * .03 + bbox.width + 8)
+      .attr("y", -6)
+      .style("font-size", "1vw")
+      .style("font-family", "Helvetica Neue")
+      .text(this.units);
   }
 
   Chart.prototype.showOnly = function(b){
@@ -585,11 +594,10 @@ function updateMap(countryData, year) {
   function drawLines(countryID) {
     //draws paths to countries
     countryCounter = 0; //reset
-
     var selectedCountry = dataSet[getKey(countryID, 0, true)]; //gets country object that contains the data
     selectedCenter = path.centroid(selectedCountryObject);
-
     //add tooltip to selected country
+
     countries.selectAll("path").filter(function (d) {
       return d.id == countryID;
     }).each(function (d, i) {
@@ -611,9 +619,11 @@ function updateMap(countryData, year) {
       //loops through every country
       center = path.centroid(d); //cetnroid equal to center of each country
       //for intial setup when there is no selected country
+
       if (typeof center == 'undefined') {
         center = [0, 0];
       }
+
       if (typeof selectedCenter == 'undefined') {
         selectedCenter = [0, 0];
       }
@@ -631,7 +641,6 @@ function updateMap(countryData, year) {
       center = [center, size, circleName];
 
       d3.select(this).style("fill", colorScale(temp[circleName]));
-
       svg.append("line") //adds refugee lines
         .attr("class", "countryLines")
         .attr("x1", center[0][0])
@@ -642,7 +651,6 @@ function updateMap(countryData, year) {
         .style("stroke-width", 1)
         .style("opacity", 0.30)
         .style("pointer-events", "none");
-
       movingCircles.append("circle") //adds refugee circles
         .attr("id", "p" + Math.random())
         .datum(center)
@@ -690,10 +698,12 @@ function updateMap(countryData, year) {
         var svg_width = parseInt(svg.style("width"));
         var svg_height = parseInt(svg.style("height"));
         //correct for tooltip going off the map
+
         if (currentSelectedCenter[0] + bbox.width > svg_width) {
           countryTooltip.attr("x", svg_width - bbox.width * 1.5 - 10);
           tooltipText.attr("x", svg_width - bbox.width * 1.5 + .06 * bbox.width);
         }
+
         if (currentSelectedCenter[1] + bbox.height > svg_height) {
           countryTooltip.attr("y", svg_height - 26);
           tooltipText.attr("y", svg_height - 10);
