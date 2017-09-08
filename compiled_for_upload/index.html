@@ -11,16 +11,12 @@
 </div>
 <div id="graph-container"></div>
 <script>
-  var initialize = true;
-  var dataServerPath = "{{media.get_static_path}}";
-  var mediaFileNames = "{{all_media_files}}";
   (function() {
     var initialize = true;
     var dataServerPath = "{{media.get_static_path}}";
-    var mediaFileNames = "{{all_media_files}}";
+    var actualMediaFileNames = "{{all_media_files}}";
 
     actualMediaFileNames = JSON.parse(actualMediaFileNames);
-    console.log('actualMediaFileNames', actualMediaFileNames, typeof actualMediaFileNames);
     var rawMediaFileNames = ["internetUsers.csv", "perCapitaFoodSupply.csv", "undernourishment.csv", "poverty.csv", "gdpPerCap.csv"];
     var rawMapFile = "refugeeData2013.csv";
     var mediaFileMap = {};
