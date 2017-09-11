@@ -402,17 +402,15 @@ function updateMap(countryData, year) {
     var perCapitaFoodSupply = mediaMap["perCapitaFoodSupply.csv"];
     var internetUsers = mediaMap["internetUsers.csv"];
     var poverty = mediaMap["poverty.csv"];
-    var nameKey = {
-      undernourishment: "Undernourishment",
-      perCapitaFoodSupply: "Food Supply",
-      internetUsers: "Internet Users",
-      poverty: "Poverty"
-    };
-    var unitKey = {
-      undernourishment: "(% of population)",
-      perCapitaFoodSupply: "(kcal/capita/day)",
-      poverty: "(% of population)"
-    };
+    var nameKey = {};
+    nameKey[undernourishment] = "Undernourishment";
+    nameKey[perCapitaFoodSupply] = "Food Supply";
+    nameKey[internetUsers] = "Internet Users";
+    nameKey[poverty] = "Poverty";
+    var unitKey = {};
+    unitKey[undernourishment] = "(% of population)";
+    unitKey[perCapitaFoodSupply] = "(kcal/capita/day)";
+    unitKey[poverty] = "(% of population)";
 
     d3.select(".panelSVG").remove();
 
@@ -585,7 +583,7 @@ function updateMap(countryData, year) {
     this.chartContainer.append('text')
       .attr("class", "graphTitleText")
       .attr("x", graphWidth * .03 + bbox.width + 8)
-      .attr("y", -6)
+      .attr("y", -8)
       .style("font-size", "1vw")
       .style("font-family", "Helvetica Neue")
       .text(this.units);
