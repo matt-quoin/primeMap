@@ -20,6 +20,7 @@ var primeCountriesLower = ["Angola", "Indonesia", "Kenya", "Nigeria", "Nepal", "
 var prevCountry;
 var parseDate = d3.timeParse("%Y");
 var maxRefugees = 400000;
+var mediaMap;
 var mainScale = d3.scaleLog()
   .base(10)
   .domain([1, maxRefugees])
@@ -77,6 +78,7 @@ function updateYear(yearChanged) {
 }
 
 function buildMap(dataServerPath, mediaFileMap,  initialize) {
+  mediaMap = mediaFileMap;
   var data = [];
   var countCode;
   var divElement = d3.select("#map-container");
@@ -396,16 +398,20 @@ function updateMap(countryData, year) {
 
   function drawBars(countryID, parsedData) {
     //draws bottom of page graph
+    var undernourishment = mediaMap["undernourishment.csv"];
+    var perCapitaFoodSupply = mediaMap["perCapitaFoodSupply.csv"];
+    var internetUsers = mediaMap["internetUsers.csv"];
+    var poverty = mediaMap["poverty.csv"];
     var nameKey = {
-      "undernourishment.csv": "Undernourishment",
-      "perCapitaFoodSupply.csv": "Food Supply",
-      "internetUsers.csv": "Internet Users",
-      "poverty.csv": "Poverty"
+      undernourishment: "Undernourishment",
+      perCapitaFoodSupply: "Food Supply",
+      internetUsers: "Internet Users",
+      poverty: "Poverty"
     };
     var unitKey = {
-      "undernourishment.csv": "(% of population)",
-      "perCapitaFoodSupply.csv": "(kcal/capita/day)",
-      "poverty.csv": "(% of population)"
+      undernourishment: "(% of population)",
+      perCapitaFoodSupply: "(kcal/capita/day)",
+      poverty: "(% of population)"
     };
 
     d3.select(".panelSVG").remove();
@@ -426,7 +432,7 @@ function updateMap(countryData, year) {
           var totalDateRange = [];
 
           for (var setnum = 0; setnum < dataSelect.length; setnum++) {
-            var dates = parsedData[y1][dataSelect[setnum]];
+            var dates = parsedData[y1][mediaMap[dataSelect[setnum]]];
             dates = Object.keys(dates['values'][0]);
             dates = dates.slice(0, dates.length - 2).map(Number);
             Array.prototype.push.apply(totalDateRange, dates);
@@ -447,10 +453,10 @@ function updateMap(countryData, year) {
 
           for (var setnum = 0; setnum < dataSelect.length; setnum++) {
             charts.push(new Chart({
-              data: parsedData[y1][dataSelect[setnum]],
+              data: parsedData[y1][mediaMap[dataSelect[setnum]]],
               id: setnum,
-              name: nameKey[dataSelect[setnum]],
-              units: unitKey[dataSelect[setnum]],
+              name: nameKey[mediaMap[dataSelect[setnum]]],
+              units: unitKey[mediaMap[dataSelect[setnum]]],
               svg: svg,
               x: x,
               x2: x2,
