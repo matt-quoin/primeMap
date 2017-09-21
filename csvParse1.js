@@ -24,7 +24,6 @@ function sort(data, fileName) {
 //loads all data file, sorts
 function coagData(dataServerPath, files, map, dataArray, startAt, callback) {
   d3.csv(dataServerPath + map[files[startAt]], function (data5) {
-    console.log()
     dataArray.push(sort(data5, map[files[startAt]]));
 
     if (startAt == files.length - 1) {
@@ -52,6 +51,11 @@ function join(data) {
 function merge(data1, data2, property) {
   var mergedData = data1;
   var countryCodes = primeroCountries;
+  //if no data is available for a country add a null set for it
+  var null_set = $.extend(true,{},data2[0]);
+  for (var key in null_set.values[0]) {
+    null_set.values[0][key] = "";
+  }
 
   for (var t = 0; t < countryCodes.length; t++) {
     var index1 = data1.findIndex(function (d) {
@@ -66,7 +70,13 @@ function merge(data1, data2, property) {
       mergedData[index1][property] = data2[index2];
     } else if (index1 == -1 && index2 != -1) {
       mergedData.push(data2[index2]);
-    } //if only the second array has the country, add it to the general array
+    } else if (index1 != -1 && index2 == -1) {
+      null_set.key = countryCodes[t];
+      mergedData[index1][property] = null_set;
+    } else if (index1 == -1 && index2 == -1) {
+      null_set.key = countryCodes[t];
+      mergedData.push(null_set);
+    }
   }
 
   return mergedData;
