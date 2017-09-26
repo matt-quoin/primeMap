@@ -27,7 +27,7 @@ var mainScale = d3.scaleLog()
   .domain([1, maxRefugees])
   .range([1, 10]);
 var colorScaleLength = 10;
-var yAxisLabelWidth = 0;
+var yAxisLabelWidth = 9999;
 var colorScale = d3.scaleLog()
   .domain([1, maxRefugees])
   .interpolate(d3.interpolateHcl)
@@ -316,6 +316,7 @@ function updateMap(countryData, year) {
     d3.select(".panelSVG").remove();
     svg.selectAll(".legend").remove();
     addMapLegend(maxRefugees);
+    yAxisLabelWidth = 9999;
   }
 
   //get highest amount of refugees for the year
@@ -636,33 +637,34 @@ function updateMap(countryData, year) {
       .text(year);
 
       var currentYAxisLabelWidth = Math.abs(this.chartContainer.select(".axis--y").node().getBBox().x)
-      yAxisLabelWidth = yAxisLabelWidth < currentYAxisLabelWidth ? currentYAxisLabelWidth : yAxisLabelWidth;
+      yAxisLabelWidth = yAxisLabelWidth > currentYAxisLabelWidth ? currentYAxisLabelWidth : yAxisLabelWidth;
   }
 
   Chart.prototype.showOnly = function(b){
-    this.x.domain(b);
-    this.chartContainer.select("path.area").datum(this.dataStoreFinal).attr("d", this.area);
-    this.chartContainer.select("rect.year_area").attr("x", this.x(parseDate(year)));
-    this.chartContainer.select("rect.year_area2").attr("x", this.x(parseDate(year + 1)));
     var yearOffset1 = this.x(parseDate(year));
     var yearOffset2 = this.x(parseDate(year + 1));
     var yearTextOffset = yearOffset1 + ((yearOffset2 - yearOffset1) / 2);
-    this.chartContainer.select("text.year_title").attr("x", yearTextOffset);
+    var yAxisLabelWidthCorrected = yAxisLabelWidth + 4;
+    this.x.domain(b);
+    this.chartContainer.select("path.area").datum(this.dataStoreFinal).attr("d", this.area);
+    this.chartContainer.select("rect.year_area").attr("x", yearOffset1 + yAxisLabelWidthCorrected);
+    this.chartContainer.select("rect.year_area2").attr("x", yearOffset2 + yAxisLabelWidthCorrected);
+    this.chartContainer.select("text.year_title").attr("x", yearTextOffset + yAxisLabelWidthCorrected);
     this.chartContainer.select(".axis--x").call(this.xAxis);
 
-    if (yearOffset2 > width + yAxisLabelWidth || yearOffset2 < yAxisLabelWidth) {
+    if (yearOffset2 > width || yearOffset2 < 0) {
       this.chartContainer.select("rect.year_area2").style("opacity", "0");
     } else {
       this.chartContainer.select("rect.year_area2").style("opacity", "1");
     }
 
-    if (yearOffset1 > width + yAxisLabelWidth || yearOffset1 < yAxisLabelWidth) {
+    if (yearOffset1 > width || yearOffset1 < 0) {
       this.chartContainer.select("rect.year_area").style("opacity", "0");
     } else {
       this.chartContainer.select("rect.year_area").style("opacity", "1");
     }
 
-    if (yearTextOffset > width + yAxisLabelWidth || yearTextOffset < yAxisLabelWidth) {
+    if (yearTextOffset > width || yearTextOffset < 0) {
       this.chartContainer.select("text.year_title").style("opacity", "0");
     } else {
       this.chartContainer.select("text.year_title").style("opacity", "1");
