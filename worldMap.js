@@ -1,6 +1,6 @@
 "use strict";
 
-var year = 1975;
+var year = 2013;
 var parsed;
 var graphWidth = 900;
 var mapWidth;
@@ -280,8 +280,7 @@ function updateMap(countryData, year) {
   var countries = svg.select(".states");
   var selectedCountryObject;
   var scale = d3.scaleSqrt();
-
-  svg.selectAll(".countryLines").remove();
+  clearAll();
   scale.domain([0, 100]);
   scale.range([0, 90]);
   graphScale.domain([0, 2400]);
@@ -334,6 +333,19 @@ function updateMap(countryData, year) {
   svg.selectAll(".legend").remove();
   addMapLegend(highestNumRefugeesRounded);
 
+  function colorCountries(circle) {
+    var current_circle = d3.select(circle);
+    var countryID = current_circle.attr("data_country");
+    var country_color = current_circle.attr("data_country_color");
+    countries.selectAll("path").filter(function (d) {
+      return d.id == countryID;
+    }).each(function (d, i) {
+      d3.select(this).transition()
+        .duration(500)
+        .style("fill", country_color);
+    });
+  }
+
   //handles country click
   countries.selectAll("path").on("click", function (d) {
     countries.selectAll("path").style("fill", "#bcbcbc");
@@ -342,7 +354,7 @@ function updateMap(countryData, year) {
     selectedCountryObject = d;
     prevCountry = d;
     drawLines(d.id);
-    moveCircles(); //animation
+    moveCircles(colorCountries); //animation
 
     d3.select(".panelSVG").remove();
 
@@ -365,7 +377,7 @@ function updateMap(countryData, year) {
         selectedCountryObject = d;
         prevCountry = d;
         drawLines(d.id);
-        moveCircles();
+        moveCircles(colorCountries);
 
         drawBars(d.id, parsed);
       }
@@ -384,8 +396,11 @@ function updateMap(countryData, year) {
         }).attr("r", function (d) {
           return d[1];
         })
+      .on('end', function(){
+        callback(this);
+      })
       .transition()
-        .duration(1000)
+        .duration(500)
         .style("opacity", "0");
   };
 
@@ -586,11 +601,27 @@ function updateMap(countryData, year) {
       .style("font-size", "1vw")
       .style("font-family", "Helvetica Neue")
       .text(this.units);
+    this.chartContainer.append("rect")
+      .attr("class", "year_area")
+      .attr("x", this.x(parseDate(year)))
+      .attr("y", 0)
+      .attr("width", 1)
+      .attr("height", height)
+      .attr("fill", "rgba(0,0,0,0.2)");
+    this.chartContainer.append("rect")
+      .attr("class", "year_area2")
+      .attr("x", this.x(parseDate(year + 1)))
+      .attr("y", 0)
+      .attr("width", 1)
+      .attr("height", height)
+      .attr("fill", "rgba(0,0,0,0.2)");
   }
 
   Chart.prototype.showOnly = function(b){
     this.x.domain(b);
-    this.chartContainer.select("path").datum(this.dataStoreFinal).attr("d", this.area);
+    this.chartContainer.select("path.area").datum(this.dataStoreFinal).attr("d", this.area);
+    this.chartContainer.select("rect.year_area").attr("x", this.x(parseDate(year)));
+    this.chartContainer.select("rect.year_area2").attr("x", this.x(parseDate(year + 1)));
     this.chartContainer.select(".axis--x").call(this.xAxis);
   }
 
@@ -609,7 +640,6 @@ function updateMap(countryData, year) {
 
     countries.selectAll("path").filter(function (d) {
       var currentCountryRefugees = typeof dataSet[0][getKey(countryID, 0, true)] == "undefined" ? undefined : dataSet[0][getKey(countryID, 0, true)][getKey(d.id, 0, true)];
-
       if (typeof currentCountryRefugees == "undefined" || currentCountryRefugees == 0) {
         //filters out countries that no refugees from seectedCountry have gone to
         return false;
@@ -643,7 +673,8 @@ function updateMap(countryData, year) {
       size = mainScale(size);
       center = [center, size, circleName];
 
-      d3.select(this).style("fill", colorScale(temp[circleName]));
+      d3.select(this).attr("data-country-color", colorScale(temp[circleName]))
+
       svg.append("line") //adds refugee lines
         .attr("class", "countryLines")
         .attr("x1", center[0][0])
@@ -657,6 +688,8 @@ function updateMap(countryData, year) {
       movingCircles.append("circle") //adds refugee circles
         .attr("id", "p" + Math.random())
         .datum(center)
+        .attr("data_country_color", colorScale(temp[circleName]))
+        .attr("data_country", currentID)
         .attr("cx", selectedCenter[0])
         .attr("cy", selectedCenter[1])
         .attr("r", 1)
