@@ -312,6 +312,7 @@ function updateMap(countryData, year) {
       .on("mouseover", null)
       .on("mouseout", null);
 
+    d3.select(".panelSVG").remove();
     svg.selectAll(".legend").remove();
     addMapLegend(maxRefugees);
   }
@@ -366,7 +367,6 @@ function updateMap(countryData, year) {
     prevCountry = d;
     drawLines(d.id);
     moveCircles(colorCountries); //animation
-    d3.select(".panelSVG").remove();
     drawBars(d.id, parsed);
   });
 
@@ -441,8 +441,6 @@ function updateMap(countryData, year) {
     unitKey[undernourishment] = "(% of population)";
     unitKey[perCapitaFoodSupply] = "(kcal/capita/day)";
     unitKey[poverty] = "(% of population)";
-
-    d3.select(".panelSVG").remove();
 
     reDraw();
 
