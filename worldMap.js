@@ -626,6 +626,13 @@ function updateMap(countryData, year) {
       .attr("width", 1)
       .attr("height", height - 3)
       .attr("fill", "rgba(0,0,0,0.2)");
+    this.chartContainer.append("rect")
+      .attr("class", "year_area_in_between")
+      .attr("x", this.x(parseDate(year)) + 1)
+      .attr("y", 3)
+      .attr("width", this.x(parseDate(year + 1)) - this.x(parseDate(year)) - 2)
+      .attr("height", height - 3)
+      .attr("fill", "rgba(238,238,238,0.35)");
     var yearTextX = this.x(parseDate(year)) + ((this.x(parseDate(year + 1)) - this.x(parseDate(year))) / 2);
     this.chartContainer.append("text")
       .attr("class", "year_title")
@@ -644,13 +651,14 @@ function updateMap(countryData, year) {
     var yearOffset1 = this.x(parseDate(year));
     var yearOffset2 = this.x(parseDate(year + 1));
     var yearTextOffset = yearOffset1 + ((yearOffset2 - yearOffset1) / 2);
-    var yAxisLabelWidthCorrected = yAxisLabelWidth + 4;
+    var yAxisLabelWidthCorrected = yAxisLabelWidth + 3;
     this.x.domain(b);
     this.chartContainer.select("path.area").datum(this.dataStoreFinal).attr("d", this.area);
     this.chartContainer.select("rect.year_area").attr("x", yearOffset1 + yAxisLabelWidthCorrected);
     this.chartContainer.select("rect.year_area2").attr("x", yearOffset2 + yAxisLabelWidthCorrected);
     this.chartContainer.select("text.year_title").attr("x", yearTextOffset + yAxisLabelWidthCorrected);
     this.chartContainer.select(".axis--x").call(this.xAxis);
+    this.chartContainer.select("rect.year_area_in_between").attr("x", yearOffset1 + yAxisLabelWidthCorrected + 1).attr("width", yearOffset2 - yearOffset1 - 2)
 
     if (yearOffset2 > width || yearOffset2 < 0) {
       this.chartContainer.select("rect.year_area2").style("opacity", "0");
