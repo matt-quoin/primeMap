@@ -27,6 +27,7 @@ var mainScale = d3.scaleLog()
   .domain([1, maxRefugees])
   .range([1, 10]);
 var colorScaleLength = 10;
+var yAxisLabelWidth = 0;
 var colorScale = d3.scaleLog()
   .domain([1, maxRefugees])
   .interpolate(d3.interpolateHcl)
@@ -358,8 +359,6 @@ function updateMap(countryData, year) {
       return;
     }
 
-    transitionInProgress = true;
-    document.getElementById("year-slider").disabled = true;
     countries.selectAll("path").style("fill", "#bcbcbc");
     d3.select(this).style("fill", "#FFD800");
     clearAll();
@@ -376,8 +375,6 @@ function updateMap(countryData, year) {
       return;
     }
 
-    transitionInProgress = true;
-    document.getElementById("year-slider").disabled = true;
     var countKey = getKey(0, false);
     var country = d;
     var countCode = countKey[country].code;
@@ -602,7 +599,7 @@ function updateMap(countryData, year) {
     var chartTitle = this.chartContainer.append('text')
       .attr("class", "graphTitleText")
       .attr("x", graphWidth * .03)
-      .attr("y", -6)
+      .attr("y", -8)
       .style("font-size", "1.8vw")
       .style("font-family", "Helvetica Neue")
       .text(this.name);
@@ -610,24 +607,36 @@ function updateMap(countryData, year) {
     this.chartContainer.append('text')
       .attr("class", "graphTitleText")
       .attr("x", graphWidth * .03 + bbox.width + 8)
-      .attr("y", -8)
+      .attr("y", -10)
       .style("font-size", "1vw")
       .style("font-family", "Helvetica Neue")
       .text(this.units);
     this.chartContainer.append("rect")
       .attr("class", "year_area")
       .attr("x", this.x(parseDate(year)))
-      .attr("y", 0)
+      .attr("y", 3)
       .attr("width", 1)
-      .attr("height", height)
+      .attr("height", height - 3)
       .attr("fill", "rgba(0,0,0,0.2)");
     this.chartContainer.append("rect")
       .attr("class", "year_area2")
       .attr("x", this.x(parseDate(year + 1)))
-      .attr("y", 0)
+      .attr("y", 3)
       .attr("width", 1)
-      .attr("height", height)
+      .attr("height", height - 3)
       .attr("fill", "rgba(0,0,0,0.2)");
+    var yearTextX = this.x(parseDate(year)) + ((this.x(parseDate(year + 1)) - this.x(parseDate(year))) / 2);
+    this.chartContainer.append("text")
+      .attr("class", "year_title")
+      .attr("x", yearTextX)
+      .style("font-size", ".9vw")
+      .attr("y", 2)
+      .style("font-family", "Helvetica Neue")
+      .style("text-anchor", "middle")
+      .text(year);
+
+      var currentYAxisLabelWidth = Math.abs(this.chartContainer.select(".axis--y").node().getBBox().x)
+      yAxisLabelWidth = yAxisLabelWidth < currentYAxisLabelWidth ? currentYAxisLabelWidth : yAxisLabelWidth;
   }
 
   Chart.prototype.showOnly = function(b){
@@ -635,7 +644,29 @@ function updateMap(countryData, year) {
     this.chartContainer.select("path.area").datum(this.dataStoreFinal).attr("d", this.area);
     this.chartContainer.select("rect.year_area").attr("x", this.x(parseDate(year)));
     this.chartContainer.select("rect.year_area2").attr("x", this.x(parseDate(year + 1)));
+    var yearOffset1 = this.x(parseDate(year));
+    var yearOffset2 = this.x(parseDate(year + 1));
+    var yearTextOffset = yearOffset1 + ((yearOffset2 - yearOffset1) / 2);
+    this.chartContainer.select("text.year_title").attr("x", yearTextOffset);
     this.chartContainer.select(".axis--x").call(this.xAxis);
+
+    if (yearOffset2 > width + yAxisLabelWidth || yearOffset2 < yAxisLabelWidth) {
+      this.chartContainer.select("rect.year_area2").style("opacity", "0");
+    } else {
+      this.chartContainer.select("rect.year_area2").style("opacity", "1");
+    }
+
+    if (yearOffset1 > width + yAxisLabelWidth || yearOffset1 < yAxisLabelWidth) {
+      this.chartContainer.select("rect.year_area").style("opacity", "0");
+    } else {
+      this.chartContainer.select("rect.year_area").style("opacity", "1");
+    }
+
+    if (yearTextOffset > width + yAxisLabelWidth || yearTextOffset < yAxisLabelWidth) {
+      this.chartContainer.select("text.year_title").style("opacity", "0");
+    } else {
+      this.chartContainer.select("text.year_title").style("opacity", "1");
+    }
   }
 
   function drawLines(countryID) {
@@ -651,6 +682,8 @@ function updateMap(countryData, year) {
       addTooltip(this, d, selectedCountry, getKey(d.id, 0, true), true);
     });
 
+    var yearSlider = document.getElementById("year-slider");
+
     countries.selectAll("path").filter(function (d) {
       var currentCountryRefugees = typeof dataSet[0][getKey(countryID, 0, true)] == "undefined" ? undefined : dataSet[0][getKey(countryID, 0, true)][getKey(d.id, 0, true)];
       if (typeof currentCountryRefugees == "undefined" || currentCountryRefugees == 0) {
@@ -662,6 +695,8 @@ function updateMap(countryData, year) {
 
       return true;
     }).each(function (d, i) {
+      transitionInProgress = true;
+      yearSlider.disabled = true;
       //loops through every country
       center = path.centroid(d); //cetnroid equal to center of each country
       //for intial setup when there is no selected country
