@@ -21,6 +21,7 @@ var prevCountry;
 var parseDate = d3.timeParse("%Y");
 var maxRefugees = 400000;
 var mediaMap;
+var transitionInProgress = false;
 var mainScale = d3.scaleLog()
   .base(10)
   .domain([1, maxRefugees])
@@ -342,12 +343,22 @@ function updateMap(countryData, year) {
     }).each(function (d, i) {
       d3.select(this).transition()
         .duration(500)
-        .style("fill", country_color);
+        .style("fill", country_color)
+        .on("end", function() {
+          transitionInProgress = false;
+          document.getElementById("year-slider").disabled = false;
+        });
     });
   }
 
   //handles country click
   countries.selectAll("path").on("click", function (d) {
+    if (transitionInProgress) {
+      return;
+    }
+
+    transitionInProgress = true;
+    document.getElementById("year-slider").disabled = true;
     countries.selectAll("path").style("fill", "#bcbcbc");
     d3.select(this).style("fill", "#FFD800");
     clearAll();
@@ -355,14 +366,18 @@ function updateMap(countryData, year) {
     prevCountry = d;
     drawLines(d.id);
     moveCircles(colorCountries); //animation
-
     d3.select(".panelSVG").remove();
-
     drawBars(d.id, parsed);
   });
 
   //handles button click
   d3.select(".sidePanel").selectAll("rect").on("click", function (d) {
+    if (transitionInProgress) {
+      return;
+    }
+
+    transitionInProgress = true;
+    document.getElementById("year-slider").disabled = true;
     var countKey = getKey(0, false);
     var country = d;
     var countCode = countKey[country].code;
